@@ -20,14 +20,17 @@ app.config['UPLOAD_FOLDER'] = os.path.join('static', 'images')
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Initialize Genai client
-api_key = os.environ.get("GOOGLE_CLOUD_API_KEY")
-if not api_key:
-    raise ValueError("GOOGLE_CLOUD_API_KEY environment variable is not set. Please set it before starting the app.")
+api_key = os.environ.get("GOOGLE_CLOUD_API_KEY") or os.environ.get("GEMINI_API_KEY")
 
-client = genai.Client(
-    vertexai=True,
-    api_key=api_key
-)
+try:
+    if api_key:
+        client = genai.Client(api_key=api_key)
+    else:
+        # Try finding credentials from Vertex AI/Default ADC
+        client = genai.Client(vertexai=True)
+except Exception as e:
+    print(f"Warning: Failed to initialize genai.Client: {e}")
+    client = None
 
 ASPECT_RATIOS = {
     "Instagram Post (1:1)": "1:1",
