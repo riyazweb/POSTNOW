@@ -258,9 +258,6 @@ def generate():
                 types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="OFF"),
                 types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="OFF"),
             ],
-            image_config=types.ImageConfig(
-                aspect_ratio=aspect,
-            ),
         )
 
         # The user's code had a generate_content_stream, but image generation is just generate_content or generate_images.
