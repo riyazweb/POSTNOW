@@ -354,7 +354,7 @@ def generate():
         # But wait, gemini-3-pro-image-preview generates images, which does not stream.
         # So we just use generate_content
         response = client.models.generate_content(
-            model="gemini-3-pro-image-preview",
+            model="gemini-2.5-flash-image",
             contents=contents,
             config=generate_content_config,
         )
