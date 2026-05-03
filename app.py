@@ -116,11 +116,8 @@ def get_amazon_images(url):
                 if i >= 10: 
                     break
                 img_data = curl_requests.get(img_url, impersonate=target).content
-                filename = f"amazon_img_{uuid.uuid4().hex[:8]}.jpg"
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                with open(filepath, 'wb') as f:
-                    f.write(img_data)
-                saved_images.append(filepath.replace('\\', '/'))
+                b64 = base64.b64encode(img_data).decode('utf-8')
+                saved_images.append(f"data:image/jpeg;base64,{b64}")
             return saved_images, product_title, product_desc
 
         except Exception as e:
@@ -325,7 +322,11 @@ def generate():
 
     # Process all image paths
     for p in image_paths:
-        if os.path.exists(p):
+        if p.startswith('data:image/'):
+            head, b64_data = p.split(',', 1)
+            img_data = base64.b64decode(b64_data)
+            contents.append(Image.open(io.BytesIO(img_data)))
+        elif os.path.exists(p):
             contents.append(Image.open(p))
             
     if not contents:
@@ -375,17 +376,11 @@ def generate():
                 response_text += part.text
 
         if generated_image_data:
-            # Save the generated image
-            filename = f"gen_{uuid.uuid4().hex[:8]}.png"
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            with open(filepath, 'wb') as f:
-                f.write(generated_image_data)
-            
-            # Return as base64 for immediate display + file path for download
+            # Return as base64 without saving to disk
             b64 = base64.b64encode(generated_image_data).decode('utf-8')
             return jsonify({
                 'image_base64': b64,
-                'image_path': filepath.replace('\\', '/'),
+                'image_path': f"data:image/png;base64,{b64}",
                 'text': response_text,
             })
         else:
