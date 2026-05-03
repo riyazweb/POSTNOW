@@ -11,6 +11,11 @@ from PIL import Image
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
+import json
+import time
+import datetime
+import holidays
+import feedparser
 
 load_dotenv()
 
@@ -149,6 +154,96 @@ def extract():
         'title': title,
         'description': desc
     })
+
+TRENDS_CACHE_FILE = 'trends_cache.json'
+
+@app.route('/api/trends', methods=['GET'])
+def get_trends():
+    current_time = time.time()
+    
+    # 1. Check local JSON cache
+    if os.path.exists(TRENDS_CACHE_FILE):
+        try:
+            with open(TRENDS_CACHE_FILE, 'r', encoding='utf-8') as f:
+                cache = json.load(f)
+            # 6 hours = 21600 seconds
+            if cache and cache.get('data') and (current_time - cache.get('timestamp', 0) < 21600):
+                return jsonify(cache['data'])
+        except Exception as e:
+            print(f"Cache read error: {e}")
+            pass
+            
+    try:
+        # 1. Fetch RSS using feedparser
+        feed = feedparser.parse('https://trends.google.com/trending/rss?geo=IN')
+        trends = []
+        for entry in feed.entries[:10]:
+            title = entry.title if hasattr(entry, 'title') else ""
+            news_title = entry.ht_news_item_title if hasattr(entry, 'ht_news_item_title') else ""
+            trends.append(f"{title} - {news_title}")
+            
+        # 2. Fetch Holidays
+        in_holidays = holidays.IN(years=datetime.date.today().year)
+        upcoming = []
+        for dt, name in sorted(in_holidays.items()):
+            if dt >= datetime.date.today():
+                upcoming.append(f"{dt.strftime('%b %d')}: {name}")
+            if len(upcoming) >= 5:
+                break
+                
+        # 3. Ask Gemini for specific ideas based on trends/holidays
+        current_day_name = datetime.date.today().strftime("%A")
+        
+        prompt = f"""You are an expert social media and visual marketing AI. 
+Today is {current_day_name}.
+
+Here is the FULL LIST of top trending topics in India right now:
+{chr(10).join(trends)}
+
+Here are the upcoming holidays:
+{chr(10).join(upcoming)}
+
+Generate a JSON array of creative social media post visual themes based STRICTLY on these specific trends, holidays, and the current day of the week.
+
+CRITICAL RULES:
+1. You MUST generate exactly ONE unique idea for EVERY SINGLE trend listed above. Do not skip any trends. If there are 10 trends, generate 10 ideas.
+2. You MUST generate exactly 4 ideas based ONLY on the current day of the week ({current_day_name}) (e.g., if it's Sunday, "Summer Sunday", "Sunday Funday", "Lazy Sunday", etc).
+3. Do NOT use generic categories like "Sports Fever". You MUST explicitly use the exact names of the trending people, teams, movies, or holidays.
+If "Shubman Gill" is trending, the button_label MUST mention "Shubman Gill", and the hidden_prompt MUST explicitly describe a scene with "Shubman Gill's team colors, cricket jersey aesthetic, stadium".
+
+These prompts will be used as background generators for e-commerce products.
+Format the output EXACTLY as a JSON array of objects with:
+"button_label": A short, catchy 2-4 word phrase explicitly naming the trend or day (e.g., "Shubman Gill Vibe 🏏", "Sunday Funday ☀️").
+"hidden_prompt": A highly detailed visual background prompt setting a beautiful aesthetic scene explicitly mentioning the trend's colors/theme or the day's vibe, WITHOUT mentioning any specific e-commerce product (e.g., "Set in a vibrant cricket stadium using Shubman Gill's team colors (blue and gold)..." or "A bright, sunny Sunday morning aesthetic with soft light and coffee elements...").
+
+Output ONLY the raw JSON array. No markdown, no intro."""
+
+        client_inst = genai.Client(
+            vertexai=True,
+            api_key=os.environ.get("GOOGLE_CLOUD_API_KEY"),
+        )
+        response = client_inst.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+        )
+        
+        text = response.text.replace('```json', '').replace('```', '').strip()
+        ideas = json.loads(text)
+        
+        data_to_return = {'success': True, 'ideas': ideas}
+        
+        # Save to local JSON storage
+        try:
+            with open(TRENDS_CACHE_FILE, 'w', encoding='utf-8') as f:
+                json.dump({'data': data_to_return, 'timestamp': current_time}, f)
+        except Exception as e:
+            print(f"Cache write error: {e}")
+            
+        return jsonify(data_to_return)
+        
+    except Exception as e:
+        print(f"Error fetching trends: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/enhance_prompt', methods=['POST'])
 def enhance_prompt():

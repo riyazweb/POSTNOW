@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,686 +8,823 @@
     <meta name="description" content="Extract Amazon product images and generate stunning social media posts with AI.">
     <link rel="stylesheet" href="/static/style.css">
 </head>
+
 <body>
 
-<!-- SVG Gradients -->
-<svg style="width:0; height:0; position:absolute;" aria-hidden="true" focusable="false">
-    <defs>
-        <linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#F58529" />
-            <stop offset="50%" stop-color="#DD2A7B" />
-            <stop offset="100%" stop-color="#8134AF" />
-        </linearGradient>
-    </defs>
-</svg>
+    <!-- SVG Gradients -->
+    <svg style="width:0; height:0; position:absolute;" aria-hidden="true" focusable="false">
+        <defs>
+            <linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#F58529" />
+                <stop offset="50%" stop-color="#DD2A7B" />
+                <stop offset="100%" stop-color="#8134AF" />
+            </linearGradient>
+        </defs>
+    </svg>
 
-<!-- ════════ HERO SECTION ════════ -->
-<section class="hero" id="hero-section">
-    <div class="hero-content">
-        <div class="hero-badge">AI-Powered Creative Studio</div>
-        <h1>What do you want to<br><span>post today?</span></h1>
-        <p>Drop an Amazon product link below and let AI transform it into scroll-stopping social media content in seconds.</p>
-        <div class="url-bar">
-            <div class="prefix">URL</div>
-            <input type="text" id="amazon-url" placeholder="https://www.amazon.com/dp/B08XJ8..." />
-            <button class="btn-primary" id="extract-btn">Extract Images</button>
-        </div>
-        <div id="loading" class="status-msg loading hidden">⏳ Extracting images — this may take a few seconds...</div>
-        <div id="error-message" class="status-msg error hidden"></div>
-    </div>
-</section>
-
-<!-- ════════ STUDIO DASHBOARD ════════ -->
-<div class="studio" id="studio">
-    <!-- Sticky header -->
-    <div class="studio-header">
-        <div class="logo">PIX<span>I</span> Studio</div>
-        <button class="new-btn" id="new-extract-btn">+ New Extract</button>
-    </div>
-
-    <!-- Thumbnail strip -->
-    <div class="thumb-strip">
-        <div class="thumb-strip-left">
-            <div class="selected-preview" id="selected-preview">
-                <div class="placeholder" id="select-placeholder">👆</div>
-                <div id="selected-grid" class="selected-grid hidden"></div>
+    <!-- ════════ HERO SECTION ════════ -->
+    <section class="hero" id="hero-section">
+        <div class="hero-content">
+            <div class="hero-badge">AI-Powered Creative Studio</div>
+            <h1>What do you want to<br><span>post today?</span></h1>
+            <p>Drop an Amazon product link below and let AI transform it into scroll-stopping social media content in
+                seconds.</p>
+            <div class="url-bar">
+                <div class="prefix">URL</div>
+                <input type="text" id="amazon-url" placeholder="https://www.amazon.com/dp/B08XJ8..." />
+                <button class="btn-primary" id="extract-btn">Extract Images</button>
             </div>
-            <div class="selected-info">
-                <h4>Selected Images</h4>
-                <p id="selected-status">Waiting for selection...</p>
+            <div id="loading" class="status-msg loading hidden">⏳ Extracting images — this may take a few seconds...
+            </div>
+            <div id="error-message" class="status-msg error hidden"></div>
+
+            <!-- TODAY'S TRENDS -->
+            <div class="trends-container" id="trends-container"
+                style="margin-top: 24px; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: left; box-shadow: var(--shadow);">
+                <div class="trends-header"
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3
+                        style="font-size: 13px; font-weight: 800; color: var(--brand); margin: 0; text-transform: uppercase; letter-spacing: 1px;">
+                        🔥 SELECT HERE TO SELECT TRENDS OF THIS DAY</h3>
+                </div>
+                <div class="trends-loading" id="trends-loading" style="color: var(--text-muted); font-size: 13px;">
+                    Analyzing live trends & holidays...</div>
+                <p id="trends-title-text"
+                    style="display:none; font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; font-weight: 500;">
+                    Select what you want from Today's Trends:</p>
+                <div class="trend-buttons" id="trend-buttons" style="display:none; flex-wrap: wrap; gap: 8px;"></div>
             </div>
         </div>
-        <div class="divider"></div>
-        <div class="thumb-strip-right">
-            <h3>Extracted Product Images — Click to Multi-Select</h3>
-            <div class="thumb-row" id="thumb-row"></div>
-        </div>
-    </div>
+    </section>
 
-    <!-- Main workspace -->
-    <div class="workspace">
-        
-        <!-- FAR LEFT NAV: Platforms -->
-        <div class="platform-nav">
-            <button class="plat-btn active" data-target="instagram" title="Instagram">
-                <svg viewBox="0 0 24 24" fill="none" stroke="url(#ig-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-            </button>
-            <button class="plat-btn" data-target="youtube" title="YouTube">
-                <svg viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-            </button>
-            <button class="plat-btn" data-target="facebook" title="Facebook">
-                <svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-            </button>
-            <button class="plat-btn" data-target="twitter" title="X / Twitter">
-                <svg viewBox="0 0 24 24" fill="#000000"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-            </button>
-            <button class="plat-btn" data-target="whatsapp" title="WhatsApp">
-                <svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.487-1.761-1.663-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a5.8 5.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-            </button>
-            <button class="plat-btn" data-target="custom" title="Custom Size">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
-            </button>
+    <!-- ════════ STUDIO DASHBOARD ════════ -->
+    <div class="studio" id="studio">
+        <!-- Sticky header -->
+        <div class="studio-header">
+            <div class="logo">PIX<span>I</span> Studio</div>
+            <button class="new-btn" id="new-extract-btn">+ New Extract</button>
         </div>
 
-        <!-- MID LEFT: Controls -->
-        <div class="panel-left">
-
-            <div class="panel-section" style="margin-bottom: 24px;">
-                <div class="panel-section-title">Format & Size</div>
-                <div class="format-grid" id="format-grid">
-                    
-                    <!-- INSTAGRAM -->
-                    <div class="format-card selected" data-platform="instagram" data-value="Instagram Post (1:1)">
-                        <div class="info">
-                            <div class="label">Instagram Post</div>
-                            <div class="dim">1080 x 1080px</div>
-                        </div>
-                        <div class="aspect-box-wrap"><div class="aspect-box" style="width:16px; height:16px;"></div></div>
-                    </div>
-                    <div class="format-card" data-platform="instagram" data-value="Instagram Story (9:16)">
-                        <div class="info">
-                            <div class="label">Instagram Story</div>
-                            <div class="dim">1080 x 1920px</div>
-                        </div>
-                        <div class="aspect-box-wrap"><div class="aspect-box" style="width:10px; height:18px;"></div></div>
-                    </div>
-                    <div class="format-card" data-platform="instagram" data-value="Instagram Portrait (4:5)">
-                        <div class="info">
-                            <div class="label">Instagram Portrait</div>
-                            <div class="dim">1080 x 1350px</div>
-                        </div>
-                        <div class="aspect-box-wrap"><div class="aspect-box" style="width:12.8px; height:16px;"></div></div>
-                    </div>
-
-                    <!-- FACEBOOK -->
-                    <div class="format-card hidden-plat" data-platform="facebook" data-value="Facebook Post (1:1)">
-                        <div class="info">
-                            <div class="label">Facebook Post</div>
-                            <div class="dim">1080 x 1080px</div>
-                        </div>
-                        <div class="aspect-box-wrap"><div class="aspect-box" style="width:16px; height:16px;"></div></div>
-                    </div>
-                    <div class="format-card hidden-plat" data-platform="facebook" data-value="Facebook Cover (16:9)">
-                        <div class="info">
-                            <div class="label">Facebook Cover</div>
-                            <div class="dim">1640 x 924px</div>
-                        </div>
-                        <div class="aspect-box-wrap"><div class="aspect-box" style="width:18px; height:10px;"></div></div>
-                    </div>
-                    <div class="format-card hidden-plat" data-platform="facebook" data-value="Facebook Story (9:16)">
-                        <div class="info">
-                            <div class="label">Facebook Story</div>
-                            <div class="dim">1080 x 1920px</div>
-                        </div>
-                        <div class="aspect-box-wrap"><div class="aspect-box" style="width:10px; height:18px;"></div></div>
-                    </div>
-
-                    <!-- X / TWITTER -->
-                    <div class="format-card hidden-plat" data-platform="twitter" data-value="X Post (1:1)">
-                        <div class="info">
-                            <div class="label">X / Twitter Post</div>
-                            <div class="dim">1080 x 1080px</div>
-                        </div>
-                        <div class="aspect-box-wrap"><div class="aspect-box" style="width:16px; height:16px;"></div></div>
-                    </div>
-                    <div class="format-card hidden-plat" data-platform="twitter" data-value="X In-Stream (16:9)">
-                        <div class="info">
-                            <div class="label">X / Twitter In-Stream</div>
-                            <div class="dim">1600 x 900px</div>
-                        </div>
-                        <div class="aspect-box-wrap"><div class="aspect-box" style="width:18px; height:10px;"></div></div>
-                    </div>
-
-                    <!-- YOUTUBE -->
-                    <div class="format-card hidden-plat" data-platform="youtube" data-value="YouTube Thumbnail (16:9)">
-                        <div class="info">
-                            <div class="label">YouTube Thumbnail</div>
-                            <div class="dim">1280 x 720px</div>
-                        </div>
-                        <div class="aspect-box-wrap"><div class="aspect-box" style="width:18px; height:10px;"></div></div>
-                    </div>
-                    <div class="format-card hidden-plat" data-platform="youtube" data-value="YouTube Community Post (1:1)">
-                        <div class="info">
-                            <div class="label">Community Post</div>
-                            <div class="dim">1080 x 1080px</div>
-                        </div>
-                        <div class="aspect-box-wrap"><div class="aspect-box" style="width:16px; height:16px;"></div></div>
-                    </div>
-
-                    <!-- WHATSAPP -->
-                    <div class="format-card hidden-plat" data-platform="whatsapp" data-value="WhatsApp Status (9:16)">
-                        <div class="info">
-                            <div class="label">WhatsApp Status</div>
-                            <div class="dim">1080 x 1920px</div>
-                        </div>
-                        <div class="aspect-box-wrap"><div class="aspect-box" style="width:10px; height:18px;"></div></div>
-                    </div>
-                    <div class="format-card hidden-plat" data-platform="whatsapp" data-value="WhatsApp Profile (1:1)">
-                        <div class="info">
-                            <div class="label">WhatsApp Profile</div>
-                            <div class="dim">1080 x 1080px</div>
-                        </div>
-                        <div class="aspect-box-wrap"><div class="aspect-box" style="width:16px; height:16px;"></div></div>
-                    </div>
-
-                    <!-- CUSTOM -->
-                    <div class="custom-dim-ui hidden-plat" data-platform="custom" style="padding: 12px; border: 1.5px solid var(--brand); border-radius: var(--radius-sm); margin-bottom: 8px; background: var(--brand-light);">
-                        <div style="font-size: 11px; font-weight: 700; color: var(--brand); margin-bottom: 8px; text-transform: uppercase;">Exact Custom Dimensions (px)</div>
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <input type="number" id="custom-w" placeholder="Width" value="1080" style="width: 100%; padding: 8px; border: 1px solid var(--brand); border-radius: 4px; font-size: 13px; font-weight: bold;" />
-                            <span style="color: var(--brand); font-size: 14px; font-weight: bold;">×</span>
-                            <input type="number" id="custom-h" placeholder="Height" value="1080" style="width: 100%; padding: 8px; border: 1px solid var(--brand); border-radius: 4px; font-size: 13px; font-weight: bold;" />
-                        </div>
-                    </div>
-                    
+        <!-- Thumbnail strip -->
+        <div class="thumb-strip">
+            <div class="thumb-strip-left">
+                <div class="selected-preview" id="selected-preview">
+                    <div class="placeholder" id="select-placeholder">👆</div>
+                    <div id="selected-grid" class="selected-grid hidden"></div>
+                </div>
+                <div class="selected-info">
+                    <h4>Selected Images</h4>
+                    <p id="selected-status">Waiting for selection...</p>
                 </div>
             </div>
-
-            <div class="panel-section" style="margin-bottom: 24px;">
-                <div class="panel-section-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                    <span>Describe Your Vision</span>
-                    <button class="ai-prompt-btn" id="open-ai-prompt" title="Enhance prompt with Gemini">
-                        <img src="/static/google-gemini-icon.png" alt="Gemini AI" />
-                    </button>
-                </div>
-
-                <div class="ai-prompt-input-wrap" id="ai-prompt-wrap">
-                    <input type="text" id="ai-idea-input" placeholder="e.g. 50% off early bird offer" />
-                    <button id="gen-magic-prompt-btn">Generate Master Prompt</button>
-                </div>
-
-                <textarea class="prompt-area" id="gen-prompt" placeholder="e.g. Place this product on a marble table with soft morning light..."></textarea>
+            <div class="divider"></div>
+            <div class="thumb-strip-right">
+                <h3>Extracted Product Images — Click to Multi-Select</h3>
+                <div class="thumb-row" id="thumb-row"></div>
             </div>
-
-            <button class="gen-btn" id="generate-btn">
-                <span>⚡</span> Generate Design
-            </button>
         </div>
 
-        <!-- RIGHT: Canvas / Result -->
-        <div class="panel-right" id="panel-right">
-            <div class="canvas-empty" id="canvas-empty">
-                <div class="big-icon">🎨</div>
-                <h3>Your canvas is ready</h3>
-                <p>Select images, pick a format, and hit Generate</p>
+        <!-- Main workspace -->
+        <div class="workspace">
+
+            <!-- FAR LEFT NAV: Platforms -->
+            <div class="platform-nav">
+                <button class="plat-btn active" data-target="instagram" title="Instagram">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="url(#ig-grad)" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                    </svg>
+                </button>
+                <button class="plat-btn" data-target="youtube" title="YouTube">
+                    <svg viewBox="0 0 24 24" fill="#FF0000">
+                        <path
+                            d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                    </svg>
+                </button>
+                <button class="plat-btn" data-target="facebook" title="Facebook">
+                    <svg viewBox="0 0 24 24" fill="#1877F2">
+                        <path
+                            d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                    </svg>
+                </button>
+                <button class="plat-btn" data-target="twitter" title="X / Twitter">
+                    <svg viewBox="0 0 24 24" fill="#000000">
+                        <path
+                            d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                    </svg>
+                </button>
+                <button class="plat-btn" data-target="whatsapp" title="WhatsApp">
+                    <svg viewBox="0 0 24 24" fill="#25D366">
+                        <path
+                            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.487-1.761-1.663-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a5.8 5.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
+                    </svg>
+                </button>
+                <button class="plat-btn" data-target="custom" title="Custom Size">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                        <line x1="9" y1="21" x2="9" y2="9"></line>
+                    </svg>
+                </button>
             </div>
 
-            <div class="gen-loading-state" id="gen-loading">
-                <div class="spinner"></div>
-                <span>Generating with Gemini 3 Pro — this may take 15-30s...</span>
+            <!-- MID LEFT: Controls -->
+            <div class="panel-left">
+
+                <div class="panel-section" style="margin-bottom: 24px;">
+                    <div class="panel-section-title">Format & Size</div>
+                    <div class="format-grid" id="format-grid">
+
+                        <!-- INSTAGRAM -->
+                        <div class="format-card selected" data-platform="instagram" data-value="Instagram Post (1:1)">
+                            <div class="info">
+                                <div class="label">Instagram Post</div>
+                                <div class="dim">1080 x 1080px</div>
+                            </div>
+                            <div class="aspect-box-wrap">
+                                <div class="aspect-box" style="width:16px; height:16px;"></div>
+                            </div>
+                        </div>
+                        <div class="format-card" data-platform="instagram" data-value="Instagram Story (9:16)">
+                            <div class="info">
+                                <div class="label">Instagram Story</div>
+                                <div class="dim">1080 x 1920px</div>
+                            </div>
+                            <div class="aspect-box-wrap">
+                                <div class="aspect-box" style="width:10px; height:18px;"></div>
+                            </div>
+                        </div>
+                        <div class="format-card" data-platform="instagram" data-value="Instagram Portrait (4:5)">
+                            <div class="info">
+                                <div class="label">Instagram Portrait</div>
+                                <div class="dim">1080 x 1350px</div>
+                            </div>
+                            <div class="aspect-box-wrap">
+                                <div class="aspect-box" style="width:12.8px; height:16px;"></div>
+                            </div>
+                        </div>
+
+                        <!-- FACEBOOK -->
+                        <div class="format-card hidden-plat" data-platform="facebook" data-value="Facebook Post (1:1)">
+                            <div class="info">
+                                <div class="label">Facebook Post</div>
+                                <div class="dim">1080 x 1080px</div>
+                            </div>
+                            <div class="aspect-box-wrap">
+                                <div class="aspect-box" style="width:16px; height:16px;"></div>
+                            </div>
+                        </div>
+                        <div class="format-card hidden-plat" data-platform="facebook"
+                            data-value="Facebook Cover (16:9)">
+                            <div class="info">
+                                <div class="label">Facebook Cover</div>
+                                <div class="dim">1640 x 924px</div>
+                            </div>
+                            <div class="aspect-box-wrap">
+                                <div class="aspect-box" style="width:18px; height:10px;"></div>
+                            </div>
+                        </div>
+                        <div class="format-card hidden-plat" data-platform="facebook"
+                            data-value="Facebook Story (9:16)">
+                            <div class="info">
+                                <div class="label">Facebook Story</div>
+                                <div class="dim">1080 x 1920px</div>
+                            </div>
+                            <div class="aspect-box-wrap">
+                                <div class="aspect-box" style="width:10px; height:18px;"></div>
+                            </div>
+                        </div>
+
+                        <!-- X / TWITTER -->
+                        <div class="format-card hidden-plat" data-platform="twitter" data-value="X Post (1:1)">
+                            <div class="info">
+                                <div class="label">X / Twitter Post</div>
+                                <div class="dim">1080 x 1080px</div>
+                            </div>
+                            <div class="aspect-box-wrap">
+                                <div class="aspect-box" style="width:16px; height:16px;"></div>
+                            </div>
+                        </div>
+                        <div class="format-card hidden-plat" data-platform="twitter" data-value="X In-Stream (16:9)">
+                            <div class="info">
+                                <div class="label">X / Twitter In-Stream</div>
+                                <div class="dim">1600 x 900px</div>
+                            </div>
+                            <div class="aspect-box-wrap">
+                                <div class="aspect-box" style="width:18px; height:10px;"></div>
+                            </div>
+                        </div>
+
+                        <!-- YOUTUBE -->
+                        <div class="format-card hidden-plat" data-platform="youtube"
+                            data-value="YouTube Thumbnail (16:9)">
+                            <div class="info">
+                                <div class="label">YouTube Thumbnail</div>
+                                <div class="dim">1280 x 720px</div>
+                            </div>
+                            <div class="aspect-box-wrap">
+                                <div class="aspect-box" style="width:18px; height:10px;"></div>
+                            </div>
+                        </div>
+                        <div class="format-card hidden-plat" data-platform="youtube"
+                            data-value="YouTube Community Post (1:1)">
+                            <div class="info">
+                                <div class="label">Community Post</div>
+                                <div class="dim">1080 x 1080px</div>
+                            </div>
+                            <div class="aspect-box-wrap">
+                                <div class="aspect-box" style="width:16px; height:16px;"></div>
+                            </div>
+                        </div>
+
+                        <!-- WHATSAPP -->
+                        <div class="format-card hidden-plat" data-platform="whatsapp"
+                            data-value="WhatsApp Status (9:16)">
+                            <div class="info">
+                                <div class="label">WhatsApp Status</div>
+                                <div class="dim">1080 x 1920px</div>
+                            </div>
+                            <div class="aspect-box-wrap">
+                                <div class="aspect-box" style="width:10px; height:18px;"></div>
+                            </div>
+                        </div>
+                        <div class="format-card hidden-plat" data-platform="whatsapp"
+                            data-value="WhatsApp Profile (1:1)">
+                            <div class="info">
+                                <div class="label">WhatsApp Profile</div>
+                                <div class="dim">1080 x 1080px</div>
+                            </div>
+                            <div class="aspect-box-wrap">
+                                <div class="aspect-box" style="width:16px; height:16px;"></div>
+                            </div>
+                        </div>
+
+                        <!-- CUSTOM -->
+                        <div class="custom-dim-ui hidden-plat" data-platform="custom"
+                            style="padding: 12px; border: 1.5px solid var(--brand); border-radius: var(--radius-sm); margin-bottom: 8px; background: var(--brand-light);">
+                            <div
+                                style="font-size: 11px; font-weight: 700; color: var(--brand); margin-bottom: 8px; text-transform: uppercase;">
+                                Exact Custom Dimensions (px)</div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <input type="number" id="custom-w" placeholder="Width" value="1080"
+                                    style="width: 100%; padding: 8px; border: 1px solid var(--brand); border-radius: 4px; font-size: 13px; font-weight: bold;" />
+                                <span style="color: var(--brand); font-size: 14px; font-weight: bold;">×</span>
+                                <input type="number" id="custom-h" placeholder="Height" value="1080"
+                                    style="width: 100%; padding: 8px; border: 1px solid var(--brand); border-radius: 4px; font-size: 13px; font-weight: bold;" />
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="panel-section" style="margin-bottom: 24px;">
+                    <div class="panel-section-title"
+                        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span>Describe Your Vision</span>
+                        <button class="ai-prompt-btn" id="open-ai-prompt" title="Enhance prompt with Gemini">
+                            <img src="/static/google-gemini-icon.png" alt="Gemini AI" />
+                        </button>
+                    </div>
+
+                    <div class="ai-prompt-input-wrap" id="ai-prompt-wrap">
+                        <input type="text" id="ai-idea-input" placeholder="e.g. 50% off early bird offer" />
+                        <button id="gen-magic-prompt-btn">Generate Master Prompt</button>
+                    </div>
+
+                    <textarea class="prompt-area" id="gen-prompt"
+                        placeholder="e.g. Place this product on a marble table with soft morning light..."
+                        style="height: 179px;"></textarea>
+                </div>
+
+                <button class="gen-btn" id="generate-btn">
+                    <span>⚡</span> Generate Design
+                </button>
             </div>
 
-            <div class="gen-error-msg" id="gen-error"></div>
+            <!-- RIGHT: Canvas / Result -->
+            <div class="panel-right" id="panel-right">
+                <div class="canvas-empty" id="canvas-empty">
+                    <div class="big-icon">🎨</div>
+                    <h3>Your canvas is ready</h3>
+                    <p>Select images, pick a format, and hit Generate</p>
+                </div>
 
-            <div id="result-container" style="width: 100%; display: flex; justify-content: center;"></div>
+                <div class="gen-loading-state" id="gen-loading">
+                    <div class="spinner"></div>
+                    <span>Generating with Gemini 3 Pro — this may take 15-30s...</span>
+                </div>
+
+                <div class="gen-error-msg" id="gen-error"></div>
+
+                <div id="result-container" style="width: 100%; display: flex; justify-content: center;"></div>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    // ── State ──
-    let selectedImagePaths = new Set();
-    let selectedFormat = 'Instagram Post (1:1)';
-    let windowExtractedTitle = '';
-    let windowExtractedDesc = '';
+    <script>
+        // ── State ──
+        let selectedImagePaths = new Set();
+        let selectedFormat = 'Instagram Post (1:1)';
+        let windowExtractedTitle = '';
+        let windowExtractedDesc = '';
+        let selectedTrendPrompt = '';
 
-    // ── DOM refs ──
-    const heroSection = document.getElementById('hero-section');
-    const studio = document.getElementById('studio');
-    const extractBtn = document.getElementById('extract-btn');
-    const urlInput = document.getElementById('amazon-url');
-    const loadingMsg = document.getElementById('loading');
-    const errorMsg = document.getElementById('error-message');
-    const thumbRow = document.getElementById('thumb-row');
-    const selectedGrid = document.getElementById('selected-grid');
-    const selectPlaceholder = document.getElementById('select-placeholder');
-    const selectedStatus = document.getElementById('selected-status');
-    
-    const platBtns = document.querySelectorAll('.plat-btn');
-    const formatCards = document.querySelectorAll('.format-card');
-    
-    const genPrompt = document.getElementById('gen-prompt');
-    const openAiPromptBtn = document.getElementById('open-ai-prompt');
-    const aiPromptWrap = document.getElementById('ai-prompt-wrap');
-    const aiIdeaInput = document.getElementById('ai-idea-input');
-    const genMagicPromptBtn = document.getElementById('gen-magic-prompt-btn');
+        // ── On Load ──
+        document.addEventListener('DOMContentLoaded', () => {
+            // Fetch Trends
+            fetch('/api/trends')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.ideas) {
+                        document.getElementById('trends-loading').style.display = 'none';
+                        document.getElementById('trends-title-text').style.display = 'block';
+                        const container = document.getElementById('trend-buttons');
+                        container.style.display = 'flex';
 
-    openAiPromptBtn.addEventListener('click', () => {
-        aiPromptWrap.classList.toggle('active');
-        if (aiPromptWrap.classList.contains('active')) {
-            aiIdeaInput.focus();
-        }
-    });
+                        data.ideas.forEach(idea => {
+                            const btn = document.createElement('button');
+                            btn.className = 'trend-btn';
+                            btn.textContent = idea.button_label;
+                            btn.dataset.prompt = idea.hidden_prompt;
+                            btn.style.cssText = 'background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;';
 
-    genMagicPromptBtn.addEventListener('click', async () => {
-        const idea = aiIdeaInput.value.trim();
-        if (!idea) return;
+                            btn.addEventListener('mouseover', () => { if (!btn.classList.contains('selected')) btn.style.background = '#e8e8e8'; });
+                            btn.addEventListener('mouseout', () => { if (!btn.classList.contains('selected')) btn.style.background = 'var(--bg)'; });
 
-        genMagicPromptBtn.disabled = true;
-        genMagicPromptBtn.textContent = 'Enhancing with AI...';
+                            btn.addEventListener('click', () => {
+                                // Deselect others
+                                document.querySelectorAll('.trend-btn').forEach(b => {
+                                    b.classList.remove('selected');
+                                    b.style.background = 'var(--bg)';
+                                    b.style.borderColor = 'var(--border)';
+                                    b.style.color = 'var(--text)';
+                                    b.innerHTML = b.dataset.originalText || b.textContent;
+                                });
 
-        try {
-            const resp = await fetch('/enhance_prompt', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    idea: idea,
-                    title: windowExtractedTitle,
-                    description: windowExtractedDesc
+                                if (selectedTrendPrompt === idea.hidden_prompt) {
+                                    selectedTrendPrompt = ""; // toggle off
+                                    document.getElementById('gen-prompt').value = "";
+                                } else {
+                                    btn.classList.add('selected');
+                                    btn.dataset.originalText = idea.button_label;
+                                    btn.innerHTML = '✓ ' + idea.button_label;
+                                    btn.style.background = 'var(--brand)';
+                                    btn.style.borderColor = 'var(--brand)';
+                                    btn.style.color = '#fff';
+                                    selectedTrendPrompt = idea.hidden_prompt;
+                                    document.getElementById('gen-prompt').value = idea.hidden_prompt;
+                                }
+                            });
+
+                            container.appendChild(btn);
+                        });
+                    }
                 })
-            });
-            const data = await resp.json();
-            if (!resp.ok) throw new Error(data.error || 'Failed to enhance prompt');
+                .catch(err => {
+                    document.getElementById('trends-loading').textContent = 'Could not load trends today.';
+                });
+        });
 
-            genPrompt.value = data.prompt;
-            aiPromptWrap.classList.remove('active');
-            aiIdeaInput.value = '';
-        } catch (err) {
-            alert('Error generating prompt: ' + err.message);
-        } finally {
-            genMagicPromptBtn.disabled = false;
-            genMagicPromptBtn.textContent = 'Generate Master Prompt';
-        }
-    });
+        // ── DOM refs ──
+        const heroSection = document.getElementById('hero-section');
+        const studio = document.getElementById('studio');
+        const extractBtn = document.getElementById('extract-btn');
+        const urlInput = document.getElementById('amazon-url');
+        const loadingMsg = document.getElementById('loading');
+        const errorMsg = document.getElementById('error-message');
+        const thumbRow = document.getElementById('thumb-row');
+        const selectedGrid = document.getElementById('selected-grid');
+        const selectPlaceholder = document.getElementById('select-placeholder');
+        const selectedStatus = document.getElementById('selected-status');
 
-    const generateBtn = document.getElementById('generate-btn');
-    const genError = document.getElementById('gen-error');
-    const canvasEmpty = document.getElementById('canvas-empty');
-    const resultContainer = document.getElementById('result-container');
-    const customDimUi = document.querySelector('.custom-dim-ui');
-    const customW = document.getElementById('custom-w');
-    const customH = document.getElementById('custom-h');
+        const platBtns = document.querySelectorAll('.plat-btn');
+        const formatCards = document.querySelectorAll('.format-card');
 
-    // ── Platform selection ──
-    platBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            platBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const target = btn.dataset.target;
+        const genPrompt = document.getElementById('gen-prompt');
+        const openAiPromptBtn = document.getElementById('open-ai-prompt');
+        const aiPromptWrap = document.getElementById('ai-prompt-wrap');
+        const aiIdeaInput = document.getElementById('ai-idea-input');
+        const genMagicPromptBtn = document.getElementById('gen-magic-prompt-btn');
 
-            if (target === 'custom') {
-                customDimUi.classList.remove('hidden-plat');
-            } else {
-                customDimUi.classList.add('hidden-plat');
+        openAiPromptBtn.addEventListener('click', () => {
+            aiPromptWrap.classList.toggle('active');
+            if (aiPromptWrap.classList.contains('active')) {
+                aiIdeaInput.focus();
             }
+        });
 
-            let firstVisibleCard = null;
-            formatCards.forEach(card => {
-                if (card.dataset.platform === target) {
-                    card.classList.remove('hidden-plat');
-                    if (!firstVisibleCard) firstVisibleCard = card;
+        genMagicPromptBtn.addEventListener('click', async () => {
+            const idea = aiIdeaInput.value.trim();
+            if (!idea) return;
+
+            genMagicPromptBtn.disabled = true;
+            genMagicPromptBtn.textContent = 'Enhancing with AI...';
+
+            try {
+                const resp = await fetch('/enhance_prompt', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        idea: idea,
+                        title: windowExtractedTitle,
+                        description: windowExtractedDesc
+                    })
+                });
+                const data = await resp.json();
+                if (!resp.ok) throw new Error(data.error || 'Failed to enhance prompt');
+
+                genPrompt.value = data.prompt;
+                aiPromptWrap.classList.remove('active');
+                aiIdeaInput.value = '';
+            } catch (err) {
+                alert('Error generating prompt: ' + err.message);
+            } finally {
+                genMagicPromptBtn.disabled = false;
+                genMagicPromptBtn.textContent = 'Generate Master Prompt';
+            }
+        });
+
+        const generateBtn = document.getElementById('generate-btn');
+        const genError = document.getElementById('gen-error');
+        const canvasEmpty = document.getElementById('canvas-empty');
+        const resultContainer = document.getElementById('result-container');
+        const customDimUi = document.querySelector('.custom-dim-ui');
+        const customW = document.getElementById('custom-w');
+        const customH = document.getElementById('custom-h');
+
+        // ── Platform selection ──
+        platBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                platBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const target = btn.dataset.target;
+
+                if (target === 'custom') {
+                    customDimUi.classList.remove('hidden-plat');
                 } else {
-                    card.classList.add('hidden-plat');
+                    customDimUi.classList.add('hidden-plat');
                 }
-                card.classList.remove('selected');
-            });
 
-            if (firstVisibleCard) {
-                firstVisibleCard.classList.add('selected');
-                selectedFormat = firstVisibleCard.dataset.value;
+                let firstVisibleCard = null;
+                formatCards.forEach(card => {
+                    if (card.dataset.platform === target) {
+                        card.classList.remove('hidden-plat');
+                        if (!firstVisibleCard) firstVisibleCard = card;
+                    } else {
+                        card.classList.add('hidden-plat');
+                    }
+                    card.classList.remove('selected');
+                });
+
+                if (firstVisibleCard) {
+                    firstVisibleCard.classList.add('selected');
+                    selectedFormat = firstVisibleCard.dataset.value;
+                }
+            });
+        });
+
+        // ── Format selection ──
+        formatCards.forEach(card => {
+            card.addEventListener('click', () => {
+                formatCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedFormat = card.dataset.value;
+            });
+        });
+
+        // ── Extract ──
+        extractBtn.addEventListener('click', async () => {
+            const url = urlInput.value.trim();
+            if (!url) return;
+
+            errorMsg.classList.add('hidden');
+            loadingMsg.classList.remove('hidden');
+            extractBtn.disabled = true;
+
+            try {
+                const resp = await fetch('/extract', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+                const data = await resp.json();
+                if (!resp.ok) throw new Error(data.error || 'Failed to extract images');
+                if (!data.images || data.images.length === 0) throw new Error('No images found on this page.');
+
+                windowExtractedTitle = data.title || "Unknown Product";
+                windowExtractedDesc = data.description || "";
+
+                heroSection.style.display = 'none';
+                studio.classList.add('active');
+
+                thumbRow.innerHTML = '';
+                selectedImagePaths.clear();
+
+                data.images.forEach((src, i) => {
+                    const thumb = document.createElement('div');
+                    thumb.className = 'thumb-item';
+                    const img = document.createElement('img');
+                    img.src = src;
+                    img.alt = 'Product image ' + (i + 1);
+                    thumb.appendChild(img);
+
+                    thumb.addEventListener('click', () => toggleImage(src, thumb));
+                    thumbRow.appendChild(thumb);
+                });
+
+                if (data.images.length > 0) {
+                    const firstThumb = thumbRow.querySelector('.thumb-item');
+                    toggleImage(data.images[0], firstThumb);
+                }
+            } catch (err) {
+                errorMsg.textContent = err.message;
+                errorMsg.classList.remove('hidden');
+            } finally {
+                loadingMsg.classList.add('hidden');
+                extractBtn.disabled = false;
             }
         });
-    });
 
-    // ── Format selection ──
-    formatCards.forEach(card => {
-        card.addEventListener('click', () => {
-            formatCards.forEach(c => c.classList.remove('selected'));
-            card.classList.add('selected');
-            selectedFormat = card.dataset.value;
-        });
-    });
+        // ── Toggle multi-select ──
+        function toggleImage(src, thumbEl) {
+            if (selectedImagePaths.has(src)) {
+                selectedImagePaths.delete(src);
+                thumbEl.classList.remove('selected');
+            } else {
+                selectedImagePaths.add(src);
+                thumbEl.classList.add('selected');
+            }
+            updateSelectedPreview();
+        }
 
-    // ── Extract ──
-    extractBtn.addEventListener('click', async () => {
-        const url = urlInput.value.trim();
-        if (!url) return;
+        function updateSelectedPreview() {
+            if (selectedImagePaths.size === 0) {
+                selectPlaceholder.style.display = 'block';
+                selectedGrid.classList.add('hidden');
+                selectedGrid.innerHTML = '';
+                selectedStatus.textContent = 'Waiting for selection...';
+                return;
+            }
 
-        errorMsg.classList.add('hidden');
-        loadingMsg.classList.remove('hidden');
-        extractBtn.disabled = true;
+            selectPlaceholder.style.display = 'none';
+            selectedGrid.classList.remove('hidden');
+            selectedGrid.innerHTML = '';
 
-        try {
-            const resp = await fetch('/extract', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url })
-            });
-            const data = await resp.json();
-            if (!resp.ok) throw new Error(data.error || 'Failed to extract images');
-            if (!data.images || data.images.length === 0) throw new Error('No images found on this page.');
-
-            windowExtractedTitle = data.title || "Unknown Product";
-            windowExtractedDesc = data.description || "";
-
-            heroSection.style.display = 'none';
-            studio.classList.add('active');
-
-            thumbRow.innerHTML = '';
-            selectedImagePaths.clear();
-            
-            data.images.forEach((src, i) => {
-                const thumb = document.createElement('div');
-                thumb.className = 'thumb-item';
+            const pathsArr = Array.from(selectedImagePaths);
+            pathsArr.forEach(src => {
                 const img = document.createElement('img');
                 img.src = src;
-                img.alt = 'Product image ' + (i + 1);
-                thumb.appendChild(img);
-                
-                thumb.addEventListener('click', () => toggleImage(src, thumb));
-                thumbRow.appendChild(thumb);
+                selectedGrid.appendChild(img);
             });
 
-            if (data.images.length > 0) {
-                const firstThumb = thumbRow.querySelector('.thumb-item');
-                toggleImage(data.images[0], firstThumb);
+            // Update grid layout depending on count
+            const count = pathsArr.length;
+            if (count === 1) {
+                selectedGrid.style.gridTemplateColumns = '1fr';
+                selectedGrid.style.gridTemplateRows = '1fr';
+            } else if (count === 2) {
+                selectedGrid.style.gridTemplateColumns = '1fr 1fr';
+                selectedGrid.style.gridTemplateRows = '1fr';
+            } else {
+                selectedGrid.style.gridTemplateColumns = '1fr 1fr';
+                selectedGrid.style.gridTemplateRows = '1fr 1fr';
             }
-        } catch (err) {
-            errorMsg.textContent = err.message;
-            errorMsg.classList.remove('hidden');
-        } finally {
-            loadingMsg.classList.add('hidden');
-            extractBtn.disabled = false;
-        }
-    });
 
-    // ── Toggle multi-select ──
-    function toggleImage(src, thumbEl) {
-        if (selectedImagePaths.has(src)) {
-            selectedImagePaths.delete(src);
-            thumbEl.classList.remove('selected');
-        } else {
-            selectedImagePaths.add(src);
-            thumbEl.classList.add('selected');
+            selectedStatus.textContent = `${count} image${count > 1 ? 's' : ''} ready`;
         }
-        updateSelectedPreview();
-    }
 
-    function updateSelectedPreview() {
-        if (selectedImagePaths.size === 0) {
-            selectPlaceholder.style.display = 'block';
-            selectedGrid.classList.add('hidden');
-            selectedGrid.innerHTML = '';
-            selectedStatus.textContent = 'Waiting for selection...';
-            return;
-        }
-        
-        selectPlaceholder.style.display = 'none';
-        selectedGrid.classList.remove('hidden');
-        selectedGrid.innerHTML = '';
-        
-        const pathsArr = Array.from(selectedImagePaths);
-        pathsArr.forEach(src => {
-            const img = document.createElement('img');
-            img.src = src;
-            selectedGrid.appendChild(img);
+        // ── New extract ──
+        document.getElementById('new-extract-btn').addEventListener('click', () => {
+            studio.classList.remove('active');
+            heroSection.style.display = '';
+            urlInput.value = '';
+            selectedImagePaths.clear();
+            updateSelectedPreview();
+            resultContainer.innerHTML = '';
+            canvasEmpty.style.display = '';
         });
 
-        // Update grid layout depending on count
-        const count = pathsArr.length;
-        if(count === 1) {
-            selectedGrid.style.gridTemplateColumns = '1fr';
-            selectedGrid.style.gridTemplateRows = '1fr';
-        } else if(count === 2) {
-            selectedGrid.style.gridTemplateColumns = '1fr 1fr';
-            selectedGrid.style.gridTemplateRows = '1fr';
-        } else {
-            selectedGrid.style.gridTemplateColumns = '1fr 1fr';
-            selectedGrid.style.gridTemplateRows = '1fr 1fr';
-        }
+        const aspectMap = {
+            'Instagram Post (1:1)': '1:1',
+            'Instagram Story (9:16)': '9:16',
+            'Instagram Portrait (4:5)': '3:4',
+            'Facebook Post (1:1)': '1:1',
+            'Facebook Cover (16:9)': '16:9',
+            'Facebook Story (9:16)': '9:16',
+            'X Post (1:1)': '1:1',
+            'X In-Stream (16:9)': '16:9',
+            'YouTube Thumbnail (16:9)': '16:9',
+            'YouTube Community Post (1:1)': '1:1',
+            'WhatsApp Status (9:16)': '9:16',
+            'WhatsApp Profile (1:1)': '1:1'
+        };
 
-        selectedStatus.textContent = `${count} image${count>1?'s':''} ready`;
-    }
-
-    // ── New extract ──
-    document.getElementById('new-extract-btn').addEventListener('click', () => {
-        studio.classList.remove('active');
-        heroSection.style.display = '';
-        urlInput.value = '';
-        selectedImagePaths.clear();
-        updateSelectedPreview();
-        resultContainer.innerHTML = '';
-        canvasEmpty.style.display = '';
-    });
-
-    const aspectMap = {
-        'Instagram Post (1:1)': '1:1',
-        'Instagram Story (9:16)': '9:16',
-        'Instagram Portrait (4:5)': '3:4',
-        'Facebook Post (1:1)': '1:1',
-        'Facebook Cover (16:9)': '16:9',
-        'Facebook Story (9:16)': '9:16',
-        'X Post (1:1)': '1:1',
-        'X In-Stream (16:9)': '16:9',
-        'YouTube Thumbnail (16:9)': '16:9',
-        'YouTube Community Post (1:1)': '1:1',
-        'WhatsApp Status (9:16)': '9:16',
-        'WhatsApp Profile (1:1)': '1:1'
-    };
-
-    // ── Generate ──
-    generateBtn.addEventListener('click', async () => {
-        if (selectedImagePaths.size === 0) {
-            alert('Please select at least one image first.');
-            return;
-        }
-
-        generateBtn.disabled = true;
-        genError.classList.remove('active');
-        canvasEmpty.style.display = 'none';
-
-        let formatStr = selectedFormat;
-        let finalAspect = aspectMap[selectedFormat] || '1:1';
-        let cssRatio = finalAspect.replace(':', '/'); // fallback
-        
-        // If Custom Platform is active, override with exact WxH inputs
-        const activePlat = document.querySelector('.plat-btn.active');
-        if (activePlat && activePlat.dataset.target === 'custom') {
-            const w = parseInt(customW.value) || 1080;
-            const h = parseInt(customH.value) || 1080;
-            formatStr = `Custom Image (${w}x${h}px)`;
-            cssRatio = `${w}/${h}`;
-            
-            // Find closest supported Gemini ratio (1:1, 16:9, 9:16, 4:3, 3:4)
-            const targetR = w / h;
-            const supported = [
-                { val: '1:1', num: 1 },
-                { val: '16:9', num: 16/9 },
-                { val: '9:16', num: 9/16 },
-                { val: '4:3', num: 4/3 },
-                { val: '3:4', num: 3/4 }
-            ];
-            let closest = supported[0];
-            let minDiff = Math.abs(targetR - closest.num);
-            for(let i=1; i<supported.length; i++){
-                let diff = Math.abs(targetR - supported[i].num);
-                if(diff < minDiff){ minDiff = diff; closest = supported[i]; }
+        // ── Generate ──
+        generateBtn.addEventListener('click', async () => {
+            if (selectedImagePaths.size === 0) {
+                alert('Please select at least one image first.');
+                return;
             }
-            finalAspect = closest.val;
-        }
-        
-        // Show Skeleton Loader (Append to gallery)
-        const skeletonNode = document.createElement('div');
-        skeletonNode.className = 'skeleton-card';
-        skeletonNode.style.aspectRatio = cssRatio;
-        skeletonNode.innerHTML = `
+
+            generateBtn.disabled = true;
+            genError.classList.remove('active');
+            canvasEmpty.style.display = 'none';
+
+            let formatStr = selectedFormat;
+            let finalAspect = aspectMap[selectedFormat] || '1:1';
+            let cssRatio = finalAspect.replace(':', '/'); // fallback
+
+            // If Custom Platform is active, override with exact WxH inputs
+            const activePlat = document.querySelector('.plat-btn.active');
+            if (activePlat && activePlat.dataset.target === 'custom') {
+                const w = parseInt(customW.value) || 1080;
+                const h = parseInt(customH.value) || 1080;
+                formatStr = `Custom Image (${w}x${h}px)`;
+                cssRatio = `${w}/${h}`;
+
+                // Find closest supported Gemini ratio (1:1, 16:9, 9:16, 4:3, 3:4)
+                const targetR = w / h;
+                const supported = [
+                    { val: '1:1', num: 1 },
+                    { val: '16:9', num: 16 / 9 },
+                    { val: '9:16', num: 9 / 16 },
+                    { val: '4:3', num: 4 / 3 },
+                    { val: '3:4', num: 3 / 4 }
+                ];
+                let closest = supported[0];
+                let minDiff = Math.abs(targetR - closest.num);
+                for (let i = 1; i < supported.length; i++) {
+                    let diff = Math.abs(targetR - supported[i].num);
+                    if (diff < minDiff) { minDiff = diff; closest = supported[i]; }
+                }
+                finalAspect = closest.val;
+            }
+
+            // Show Skeleton Loader (Append to gallery)
+            const skeletonNode = document.createElement('div');
+            skeletonNode.className = 'skeleton-card';
+            skeletonNode.style.aspectRatio = cssRatio;
+            skeletonNode.innerHTML = `
             <div class="skeleton-pulse"></div>
             <div class="skeleton-text">
                 <div class="spinner"></div>
                 Generating AI Design...
             </div>
         `;
-        resultContainer.appendChild(skeletonNode);
-        
-        // Auto-scroll gallery to the right
-        setTimeout(() => {
-            resultContainer.scrollTo({
-                left: resultContainer.scrollWidth,
-                behavior: 'smooth'
-            });
-        }, 50);
+            resultContainer.appendChild(skeletonNode);
 
-        try {
-            const resp = await fetch('/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    image_paths: Array.from(selectedImagePaths),
-                    format: formatStr,
-                    aspect_ratio: finalAspect,
-                    prompt: genPrompt.value,
-                    title: windowExtractedTitle,
-                    description: windowExtractedDesc
-                })
-            });
-
-            const data = await resp.json();
-            if (!resp.ok) throw new Error(data.error || 'Generation failed');
-
-            // Build result card
-            const card = document.createElement('div');
-            card.className = 'result-card';
-            card.style.aspectRatio = cssRatio;
-
-            const imgWrap = document.createElement('div');
-            imgWrap.className = 'result-img-wrap';
-            
-            const img = document.createElement('img');
-            img.src = 'data:image/png;base64,' + data.image_base64;
-            img.alt = 'Generated ' + selectedFormat;
-            
-            imgWrap.appendChild(img);
-            card.appendChild(imgWrap);
-
-            // Actions row (Hover Overlay)
-            const actions = document.createElement('div');
-            actions.className = 'result-actions';
-
-            const dlBtn = document.createElement('button');
-            dlBtn.className = 'download-btn';
-            dlBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download';
-            dlBtn.addEventListener('click', () => {
-                const a = document.createElement('a');
-                a.href = img.src;
-                a.download = 'pixi_' + selectedFormat.replace(/\s/g, '_') + '_' + Date.now() + '.png';
-                a.click();
-            });
-
-            const copyBtn = document.createElement('button');
-            copyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy';
-            copyBtn.addEventListener('click', async () => {
-                try {
-                    const r = await fetch(img.src);
-                    const b = await r.blob();
-                    await navigator.clipboard.write([new ClipboardItem({ 'image/png': b })]);
-                    copyBtn.innerHTML = '✅ Copied!';
-                    setTimeout(() => copyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy', 2000);
-                } catch (e) { copyBtn.innerHTML = '❌ Failed'; }
-            });
-
-            const shareBtn = document.createElement('button');
-            shareBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share';
-            shareBtn.addEventListener('click', () => {
-                document.getElementById('share-modal-img').src = img.src;
-                document.getElementById('share-modal-title').textContent = windowExtractedTitle;
-                document.getElementById('share-modal-desc').textContent = windowExtractedDesc;
-                document.getElementById('caption-idea').value = '';
-                document.getElementById('caption-result').value = '';
-                document.getElementById('share-modal').classList.add('active');
-            });
-
-            actions.appendChild(dlBtn);
-            actions.appendChild(copyBtn);
-            actions.appendChild(shareBtn);
-            card.appendChild(actions);
-
-            resultContainer.replaceChild(card, skeletonNode);
-
-        } catch (err) {
-            skeletonNode.remove();
-            genError.textContent = err.message;
-            genError.classList.add('active');
-        } finally {
-            generateBtn.disabled = false;
-        }
-    });
-
-    urlInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') extractBtn.click();
-        const shareModal = document.getElementById('share-modal');
-    const closeShareModal = document.getElementById('close-share-modal');
-    const btnGenCaption = document.getElementById('btn-gen-caption');
-    const btnFinalShare = document.getElementById('btn-final-share');
-
-    closeShareModal.addEventListener('click', () => shareModal.classList.remove('active'));
-
-    btnGenCaption.addEventListener('click', async () => {
-        const idea = document.getElementById('caption-idea').value;
-        btnGenCaption.disabled = true;
-        btnGenCaption.innerHTML = 'Writing...';
-        
-        try {
-            const resp = await fetch('/generate_caption', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    title: windowExtractedTitle,
-                    description: windowExtractedDesc,
-                    idea: idea
-                })
-            });
-            const data = await resp.json();
-            if(!resp.ok) throw new Error(data.error);
-            document.getElementById('caption-result').value = data.caption;
-        } catch(e) {
-            alert("Error writing caption: " + e.message);
-        } finally {
-            btnGenCaption.disabled = false;
-            btnGenCaption.innerHTML = `<img src="{{ url_for('static', filename='assets/google-gemini-icon.png') }}" width="16" height="16" /> Write Caption`;
-        }
-    });
-
-    btnFinalShare.addEventListener('click', async () => {
-        const imgSrc = document.getElementById('share-modal-img').src;
-        const text = document.getElementById('caption-result').value;
-        if (navigator.share) {
-            try {
-                const r = await fetch(imgSrc);
-                const blob = await r.blob();
-                const file = new File([blob], 'pixi_generation.png', { type: 'image/png' });
-                await navigator.share({
-                    text: text,
-                    files: [file]
+            // Auto-scroll gallery to the right
+            setTimeout(() => {
+                resultContainer.scrollTo({
+                    left: resultContainer.scrollWidth,
+                    behavior: 'smooth'
                 });
-                shareModal.classList.remove('active');
-            } catch(e) { console.error('Share failed', e); }
-        } else {
-            alert('Sharing is not supported on this browser.');
-        }
-    });
+            }, 50);
 
-});
-</script>
+            try {
+                const resp = await fetch('/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        image_paths: Array.from(selectedImagePaths),
+                        format: formatStr,
+                        aspect_ratio: finalAspect,
+                        prompt: genPrompt.value + (selectedTrendPrompt ? "\n\nCRITICAL CONTEXT / TREND: Integrate this specific visual aesthetic or setting into the image: " + selectedTrendPrompt : ""),
+                        title: windowExtractedTitle,
+                        description: windowExtractedDesc
+                    })
+                });
+
+                const data = await resp.json();
+                if (!resp.ok) throw new Error(data.error || 'Generation failed');
+
+                // Build result card
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                card.style.aspectRatio = cssRatio;
+
+                const imgWrap = document.createElement('div');
+                imgWrap.className = 'result-img-wrap';
+
+                const img = document.createElement('img');
+                img.src = 'data:image/png;base64,' + data.image_base64;
+                img.alt = 'Generated ' + selectedFormat;
+
+                imgWrap.appendChild(img);
+                card.appendChild(imgWrap);
+
+                // Actions row (Hover Overlay)
+                const actions = document.createElement('div');
+                actions.className = 'result-actions';
+
+                const dlBtn = document.createElement('button');
+                dlBtn.className = 'download-btn';
+                dlBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download';
+                dlBtn.addEventListener('click', () => {
+                    const a = document.createElement('a');
+                    a.href = img.src;
+                    a.download = 'pixi_' + selectedFormat.replace(/\s/g, '_') + '_' + Date.now() + '.png';
+                    a.click();
+                });
+
+                const copyBtn = document.createElement('button');
+                copyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy';
+                copyBtn.addEventListener('click', async () => {
+                    try {
+                        const r = await fetch(img.src);
+                        const b = await r.blob();
+                        await navigator.clipboard.write([new ClipboardItem({ 'image/png': b })]);
+                        copyBtn.innerHTML = '✅ Copied!';
+                        setTimeout(() => copyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy', 2000);
+                    } catch (e) { copyBtn.innerHTML = '❌ Failed'; }
+                });
+
+                const shareBtn = document.createElement('button');
+                shareBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share';
+                shareBtn.addEventListener('click', () => {
+                    document.getElementById('share-modal-img').src = img.src;
+                    document.getElementById('share-modal-title').textContent = windowExtractedTitle;
+                    document.getElementById('share-modal-desc').textContent = windowExtractedDesc;
+                    document.getElementById('caption-idea').value = '';
+                    document.getElementById('caption-result').value = '';
+                    document.getElementById('share-modal').classList.add('active');
+                });
+
+                actions.appendChild(dlBtn);
+                actions.appendChild(copyBtn);
+                actions.appendChild(shareBtn);
+                card.appendChild(actions);
+
+                resultContainer.replaceChild(card, skeletonNode);
+
+            } catch (err) {
+                skeletonNode.remove();
+                genError.textContent = err.message;
+                genError.classList.add('active');
+            } finally {
+                generateBtn.disabled = false;
+            }
+        });
+
+        urlInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') extractBtn.click();
+            const shareModal = document.getElementById('share-modal');
+            const closeShareModal = document.getElementById('close-share-modal');
+            const btnGenCaption = document.getElementById('btn-gen-caption');
+            const btnFinalShare = document.getElementById('btn-final-share');
+
+            closeShareModal.addEventListener('click', () => shareModal.classList.remove('active'));
+
+            btnGenCaption.addEventListener('click', async () => {
+                const idea = document.getElementById('caption-idea').value;
+                btnGenCaption.disabled = true;
+                btnGenCaption.innerHTML = 'Writing...';
+
+                try {
+                    const resp = await fetch('/generate_caption', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            title: windowExtractedTitle,
+                            description: windowExtractedDesc,
+                            idea: idea
+                        })
+                    });
+                    const data = await resp.json();
+                    if (!resp.ok) throw new Error(data.error);
+                    document.getElementById('caption-result').value = data.caption;
+                } catch (e) {
+                    alert("Error writing caption: " + e.message);
+                } finally {
+                    btnGenCaption.disabled = false;
+                    btnGenCaption.innerHTML = `<img src="{{ url_for('static', filename='assets/google-gemini-icon.png') }}" width="16" height="16" /> Write Caption`;
+                }
+            });
+
+            btnFinalShare.addEventListener('click', async () => {
+                const imgSrc = document.getElementById('share-modal-img').src;
+                const text = document.getElementById('caption-result').value;
+                if (navigator.share) {
+                    try {
+                        const r = await fetch(imgSrc);
+                        const blob = await r.blob();
+                        const file = new File([blob], 'pixi_generation.png', { type: 'image/png' });
+                        await navigator.share({
+                            text: text,
+                            files: [file]
+                        });
+                        shareModal.classList.remove('active');
+                    } catch (e) { console.error('Share failed', e); }
+                } else {
+                    alert('Sharing is not supported on this browser.');
+                }
+            });
+
+        });
+    </script>
 
     <!-- Share Modal -->
     <div id="share-modal" class="share-modal">
@@ -701,21 +839,35 @@
                         <h4 id="share-modal-title"></h4>
                         <p id="share-modal-desc"></p>
                     </div>
-                    
+
                     <div class="caption-generator">
-                        <textarea id="caption-idea" placeholder="What do you want to say in the caption? (e.g. 'Announce a 50% off summer sale')"></textarea>
-                        <button id="btn-gen-caption" class="gen-btn" style="margin-top:12px; width:100%; background: #222; color: #fff; display:flex; align-items:center; justify-content:center; gap:8px;">
-                            <img src="{{ url_for('static', filename='assets/google-gemini-icon.png') }}" width="16" height="16" />
+                        <textarea id="caption-idea"
+                            placeholder="What do you want to say in the caption? (e.g. 'Announce a 50% off summer sale')"></textarea>
+                        <button id="btn-gen-caption" class="gen-btn"
+                            style="margin-top:12px; width:100%; background: #222; color: #fff; display:flex; align-items:center; justify-content:center; gap:8px;">
+                            <img src="{{ url_for('static', filename='assets/google-gemini-icon.png') }}" width="16"
+                                height="16" />
                             Write Caption
                         </button>
                     </div>
-                    
-                    <div class="caption-result-wrap" style="flex:1; display:flex; flex-direction:column; margin-top:16px; margin-bottom:16px; min-height:0;">
-                        <textarea id="caption-result" placeholder="AI Generated Caption will appear here... you can edit it before sharing!" style="flex:1; min-height:0; height:100%; width:100%; padding:16px; border:1px solid var(--border); border-radius:8px; resize:none; font-family:inherit; font-size:14px; line-height: 1.6; background: #fafafa;"></textarea>
+
+                    <div class="caption-result-wrap"
+                        style="flex:1; display:flex; flex-direction:column; margin-top:16px; margin-bottom:16px; min-height:0;">
+                        <textarea id="caption-result"
+                            placeholder="AI Generated Caption will appear here... you can edit it before sharing!"
+                            style="flex:1; min-height:0; height:100%; width:100%; padding:16px; border:1px solid var(--border); border-radius:8px; resize:none; font-family:inherit; font-size:14px; line-height: 1.6; background: #fafafa;"></textarea>
                     </div>
-                    
-                    <button id="btn-final-share" class="gen-btn" style="flex-shrink:0; margin-top:0; width:100%; display:flex; align-items:center; justify-content:center; gap:8px;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+
+                    <button id="btn-final-share" class="gen-btn"
+                        style="flex-shrink:0; margin-top:0; width:100%; display:flex; align-items:center; justify-content:center; gap:8px;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="18" cy="5" r="3"></circle>
+                            <circle cx="6" cy="12" r="3"></circle>
+                            <circle cx="18" cy="19" r="3"></circle>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                        </svg>
                         Share Post
                     </button>
                 </div>
@@ -724,4 +876,5 @@
     </div>
 
 </body>
+
 </html>
