@@ -20,9 +20,13 @@ app.config['UPLOAD_FOLDER'] = os.path.join('static', 'images')
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Initialize Genai client
+api_key = os.environ.get("GOOGLE_CLOUD_API_KEY")
+if not api_key:
+    raise ValueError("GOOGLE_CLOUD_API_KEY environment variable is not set. Please set it before starting the app.")
+
 client = genai.Client(
     vertexai=True,
-    api_key=os.environ.get("GOOGLE_CLOUD_API_KEY")
+    api_key=api_key
 )
 
 ASPECT_RATIOS = {
