@@ -350,8 +350,6 @@ def generate():
             ],
             image_config=types.ImageConfig(
                 aspect_ratio=aspect,
-                image_size="1K",
-                output_mime_type="image/png",
             ),
             thinking_config=types.ThinkingConfig(
                 thinking_level="HIGH",

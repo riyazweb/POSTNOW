@@ -67,9 +67,7 @@ def generate():
             types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="OFF")
         ],
         image_config=types.ImageConfig(
-            aspect_ratio="auto",
-            image_size="1K",
-            output_mime_type="image/png",
+            aspect_ratio="1:1",
         ),
         thinking_config=types.ThinkingConfig(
             thinking_level="HIGH",
