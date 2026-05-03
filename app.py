@@ -32,7 +32,7 @@ try:
         client = genai.Client(api_key=api_key)
     else:
         # Try finding credentials from Vertex AI/Default ADC
-        client = genai.Client(vertexai=True, location="us-central1")
+        client = genai.Client(vertexai=True)
 except Exception as e:
     print(f"Warning: Failed to initialize genai.Client: {e}")
     client = None
@@ -215,7 +215,10 @@ Format the output EXACTLY as a JSON array of objects with:
 
 Output ONLY the raw JSON array. No markdown, no intro."""
 
-        client_inst = genai.Client(api_key=api_key) if api_key else genai.Client(vertexai=True, location="us-central1")
+        client_inst = genai.Client(
+            vertexai=True,
+            api_key=os.environ.get("GOOGLE_CLOUD_API_KEY"),
+        )
         response = client_inst.models.generate_content(
             model='gemini-2.5-flash',
             contents=prompt,
@@ -290,8 +293,11 @@ Format strictly like this:
 Keep it punchy, use emojis naturally, and make it ready to post!"""
 
     try:
-        client_inst = genai.Client(api_key=api_key) if api_key else genai.Client(vertexai=True, location="us-central1")
-        response = client_inst.models.generate_content(
+        client = genai.Client(
+            vertexai=True,
+            api_key=os.environ.get("GOOGLE_CLOUD_API_KEY"),
+        )
+        response = client.models.generate_content(
             model='gemini-2.5-flash',
             contents=prompt,
         )
@@ -341,26 +347,20 @@ def generate():
             temperature=1,
             top_p=0.95,
             max_output_tokens=32768,
-            response_modalities=["TEXT", "IMAGE"],
+            response_modalities=["IMAGE"],
             safety_settings=[
                 types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="OFF"),
                 types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="OFF"),
                 types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="OFF"),
                 types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="OFF"),
             ],
-            image_config=types.ImageConfig(
-                aspect_ratio=aspect,
-            ),
-            thinking_config=types.ThinkingConfig(
-                thinking_level="HIGH",
-            ),
         )
 
         # The user's code had a generate_content_stream, but image generation is just generate_content or generate_images.
         # But wait, gemini-3-pro-image-preview generates images, which does not stream.
         # So we just use generate_content
         response = client.models.generate_content(
-            model="gemini-3.1-flash-image-preview",
+            model="gemini-3-pro-image-preview",
             contents=contents,
             config=generate_content_config,
         )
