@@ -29,7 +29,7 @@ api_key = os.environ.get("GOOGLE_CLOUD_API_KEY") or os.environ.get("GEMINI_API_K
 
 try:
     if api_key:
-        client = genai.Client(api_key=api_key)
+        client = genai.Client(vertexai=True, location="us-central1")
     else:
         # Try finding credentials from Vertex AI/Default ADC
         client = genai.Client(vertexai=True)
@@ -215,10 +215,7 @@ Format the output EXACTLY as a JSON array of objects with:
 
 Output ONLY the raw JSON array. No markdown, no intro."""
 
-        client_inst = genai.Client(
-            vertexai=True,
-            api_key=os.environ.get("GOOGLE_CLOUD_API_KEY"),
-        )
+        client_inst = genai.Client(vertexai=True, location="us-central1")
         response = client_inst.models.generate_content(
             model='gemini-2.5-flash',
             contents=prompt,
@@ -293,10 +290,7 @@ Format strictly like this:
 Keep it punchy, use emojis naturally, and make it ready to post!"""
 
     try:
-        client = genai.Client(
-            vertexai=True,
-            api_key=os.environ.get("GOOGLE_CLOUD_API_KEY"),
-        )
+        client = genai.Client(vertexai=True, location="us-central1")
         response = client.models.generate_content(
             model='gemini-2.5-flash',
             contents=prompt,
@@ -357,10 +351,10 @@ def generate():
         )
 
         # The user's code had a generate_content_stream, but image generation is just generate_content or generate_images.
-        # But wait, gemini-3-pro-image-preview generates images, which does not stream.
+        # But wait, gemini-3.1-flash-image-preview generates images, which does not stream.
         # So we just use generate_content
         response = client.models.generate_content(
-            model="gemini-3-pro-image-preview",
+            model="gemini-3.1-flash-image-preview",
             contents=contents,
             config=generate_content_config,
         )
