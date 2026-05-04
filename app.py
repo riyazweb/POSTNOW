@@ -191,27 +191,30 @@ def get_trends():
         # 3. Ask Gemini for specific ideas based on trends/holidays
         current_day_name = datetime.date.today().strftime("%A")
         
-        prompt = f"""You are an expert social media and visual marketing AI. 
-Today is {current_day_name}.
+        prompt = f"""You are an elite e-commerce visual merchandiser and social media marketing strategist. 
+Today's day is {current_day_name}.
 
-Here is the FULL LIST of top trending topics in India right now:
+Here is the exact list of top trending topics in India right now:
 {chr(10).join(trends)}
 
-Here are the upcoming holidays:
+Here are the heavily anticipated upcoming holidays:
 {chr(10).join(upcoming)}
 
-Generate a JSON array of creative social media post visual themes based STRICTLY on these specific trends, holidays, and the current day of the week.
+Your goal is to bridge the gap between CURRENT TRENDS/HOLIDAYS and E-COMMERCE PRODUCT PLACEMENT.
+Generate a JSON array of highly creative, aesthetic social media product photography themes based STRICTLY on these real-world trends, holidays, and the current day of the week.
 
-CRITICAL RULES:
-1. You MUST generate exactly ONE unique idea for EVERY SINGLE trend listed above. Do not skip any trends. If there are 10 trends, generate 10 ideas.
-2. You MUST generate exactly 4 ideas based ONLY on the current day of the week ({current_day_name}) (e.g., if it's Sunday, "Summer Sunday", "Sunday Funday", "Lazy Sunday", etc).
-3. Do NOT use generic categories like "Sports Fever". You MUST explicitly use the exact names of the trending people, teams, movies, or holidays.
-If "Shubman Gill" is trending, the button_label MUST mention "Shubman Gill", and the hidden_prompt MUST explicitly describe a scene with "Shubman Gill's team colors, cricket jersey aesthetic, stadium".
-
-These prompts will be used as background generators for e-commerce products.
+CRITICAL RULES AND LOGIC:
+1. You MUST generate exactly ONE unique idea for EVERY SINGLE trend listed above. Do not skip any trends.
+2. You MUST generate exactly 4 ideas based ONLY on the current day of the week ({current_day_name}).
+3. AVOID generic names. Explicitly use the EXACT trending names (people, teams, movies, events).
+4. THE E-COMMERCE CONNECTION: Your hidden_prompt must describe a dynamic, high-end product photography environment that subtly but brilliantly incorporates the visual identity of the trend. 
+   - Example 1: If "IPL" or a cricket player is trending, the label should be "Matchday Vibe 🏏", and the hidden_prompt should describe: "A sleek, high-end product photography podium placed inside a glowing stadium at night, illuminated by dramatic team color rim lights, with subtle cricket or stadium elements blurred beautifully in the background bokeh."
+   - Example 2: If a hit "Action Movie" is trending, hidden_prompt: "Cinematic, gritty product photography stage with moody neon lighting, smoke haze, and dramatic high-contrast shadows matching the movie's explosive aesthetic."
+   
+These prompts will be used verbatim as background generators for an AI image mixer that will place an e-commerce product inside the scene.
 Format the output EXACTLY as a JSON array of objects with:
-"button_label": A short, catchy 2-4 word phrase explicitly naming the trend or day (e.g., "Shubman Gill Vibe 🏏", "Sunday Funday ☀️").
-"hidden_prompt": A highly detailed visual background prompt setting a beautiful aesthetic scene explicitly mentioning the trend's colors/theme or the day's vibe, WITHOUT mentioning any specific e-commerce product (e.g., "Set in a vibrant cricket stadium using Shubman Gill's team colors (blue and gold)..." or "A bright, sunny Sunday morning aesthetic with soft light and coffee elements...").
+"button_label": A short, catchy 2-4 word phrase explicitly naming the trend, holiday, or day, paired with 1 matching emoji (e.g., "Kohli's Stage 🏏", "Diwali Glamour ✨").
+"hidden_prompt": A highly detailed, hyper-realistic 3D product photography environment prompt. Describe the podium/surface, the specific lighting, the thematic props, and the colors associated with the trend. DO NOT MENTION ANY SPECIFIC PRODUCT—just build the perfect stage for one to be dropped into.
 
 Output ONLY the raw JSON array. No markdown, no intro."""
 
