@@ -381,7 +381,6 @@
         let selectedFormat = 'Instagram Post (1:1)';
         let windowExtractedTitle = '';
         let windowExtractedDesc = '';
-        let selectedTrendPrompt = '';
         let activePlatform = 'instagram'; // Track current platform
 
         // Hacks Configuration
@@ -499,6 +498,8 @@
                             btn.addEventListener('mouseout', () => { if (!btn.classList.contains('selected')) btn.style.background = 'var(--bg)'; });
 
                             btn.addEventListener('click', () => {
+                                const isAlreadySelected = btn.classList.contains('selected');
+                                
                                 // Deselect others
                                 document.querySelectorAll('.trend-btn').forEach(b => {
                                     b.classList.remove('selected');
@@ -508,8 +509,8 @@
                                     b.innerHTML = b.dataset.originalText || b.textContent;
                                 });
 
-                                if (selectedTrendPrompt === idea.hidden_prompt) {
-                                    selectedTrendPrompt = ""; // toggle off
+                                if (isAlreadySelected) {
+                                    // toggle off
                                     document.getElementById('gen-prompt').value = "";
                                 } else {
                                     btn.classList.add('selected');
@@ -518,7 +519,6 @@
                                     btn.style.background = 'var(--brand)';
                                     btn.style.borderColor = 'var(--brand)';
                                     btn.style.color = '#fff';
-                                    selectedTrendPrompt = idea.hidden_prompt;
                                     document.getElementById('gen-prompt').value = idea.hidden_prompt;
                                 }
                             });
@@ -885,7 +885,6 @@
 
                 const finalPromptStr = genPrompt.value 
                     + langPrompt 
-                    + (selectedTrendPrompt ? "\n\nCRITICAL CONTEXT / TREND: Integrate this specific visual aesthetic or setting into the image: " + selectedTrendPrompt : "")
                     + overlayHackPrompt;
 
                 const resp = await fetch('/generate', {
