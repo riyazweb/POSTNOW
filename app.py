@@ -1,3 +1,9 @@
+"""
+PIXI / POSTNOW - Main Application Module
+
+This Flask application handles web routing, trend analysis, and integrates with 
+Generative AI endpoints to produce tailored social media content.
+"""
 from flask import Flask, render_template, request, jsonify, send_file
 import requests
 from bs4 import BeautifulSoup
