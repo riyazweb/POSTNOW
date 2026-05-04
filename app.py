@@ -191,7 +191,7 @@ def get_trends():
         # 3. Ask Gemini for specific ideas based on trends/holidays
         current_day_name = datetime.date.today().strftime("%A")
         
-            prompt = f"""You are an elite e-commerce visual merchandiser and social media marketing strategist. 
+        prompt = f"""You are an elite e-commerce visual merchandiser and social media marketing strategist. 
 Today's day is {current_day_name}.
 
 Here is the exact list of top trending topics in India right now:
