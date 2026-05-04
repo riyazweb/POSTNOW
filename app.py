@@ -279,18 +279,29 @@ def generate_caption():
     title = data.get('title', '')
     desc = data.get('description', '')
     idea = data.get('idea', '')
+    platform = data.get('platform', 'Instagram')
     
-    prompt = f"""You are an expert social media manager.
+    platform_instructions = {
+        "WhatsApp": "Format perfectly for a WhatsApp Broadcast message. Highly optimized for Indian D2C sellers. Keep it short, heavily formatted with emojis (🚀🔥✨), bullet points, highlight urgency/offers, and include a very clear placeholder for a Call-to-Action link. Make it sound personal and direct like a WhatsApp message.",
+        "Instagram": "Format perfectly for an Instagram post. Catchy hook, engaging readable body with line breaks, a clear CTA, and 10-15 highly relevant hashtags.",
+        "Facebook": "Format perfectly for a Facebook post. Conversational tone, ask a question to drive comments, use a few targeted emojis, and include a clear link placeholder.",
+        "Twitter": "Format perfectly for an X/Twitter post. Under 280 characters. Extremely punchy, witty or fact-driven, include a strong hook, 1-2 emojis, and 2-3 hashtags.",
+        "YouTube": "Format perfectly for a YouTube Community Post. Conversational, poll-like or engaging question, driving users to check out a link or video.",
+        "Custom": "Format as a generic, highly engaging social media caption. Include a catchy headline, engaging body, and relevant hashtags."
+    }
+
+    instruction = platform_instructions.get(platform) or platform_instructions["Instagram"]
+
+    prompt = f"""You are an expert social media manager and copywriter.
 Write a highly engaging social media caption for this product.
 Product Title: {title}
 Product Details: {desc}
 User Request: {idea}
+Platform: {platform}
 
-Format strictly like this:
-[Catchy Headline]
-[Short Engaging Body]
-[3-5 relevant hashtags]
-Keep it punchy, use emojis naturally, and make it ready to post!"""
+{instruction}
+
+Ensure it is instantly ready to copy-paste!"""
 
     try:
         client = genai.Client(

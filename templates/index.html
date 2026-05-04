@@ -134,6 +134,23 @@
             <!-- MID LEFT: Controls -->
             <div class="panel-left">
 
+                <div class="panel-section" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                    <div style="font-size: 13px; font-weight: 700; color: var(--text);">Output Language</div>
+                    <select id="language-select" style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); font-size: 13px; font-weight: 600; background: var(--bg); color: var(--text); outline: none; cursor: pointer; min-width: 140px;">
+                        <option value="">English (Default)</option>
+                        <option value="Hindi">Hindi (हिंदी)</option>
+                        <option value="Bengali">Bengali (বাংলা)</option>
+                        <option value="Telugu">Telugu (తెలుగు)</option>
+                        <option value="Marathi">Marathi (मराठी)</option>
+                        <option value="Tamil">Tamil (தமிழ்)</option>
+                        <option value="Urdu">Urdu (اردو)</option>
+                        <option value="Gujarati">Gujarati (ગુજરાતી)</option>
+                        <option value="Kannada">Kannada (ಕನ್ನಡ)</option>
+                        <option value="Malayalam">Malayalam (മലയാളം)</option>
+                        <option value="Punjabi">Punjabi (ਪੰਜਾਬੀ)</option>
+                    </select>
+                </div>
+
                 <div class="panel-section" style="margin-bottom: 24px;">
                     <div class="panel-section-title">Format & Size</div>
                     <div class="format-grid" id="format-grid">
@@ -275,8 +292,42 @@
                                 <input type="number" id="custom-h" placeholder="Height" value="1080"
                                     style="width: 100%; padding: 8px; border: 1px solid var(--brand); border-radius: 4px; font-size: 13px; font-weight: bold;" />
                             </div>
+                            <!-- Bars to adjust -->
+                            <div style="margin-top: 12px;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                    <span style="font-size: 11px; flex: 0 0 40px; color: var(--text-secondary);">Width</span>
+                                    <input type="range" id="custom-w-slider" min="100" max="8000" value="1080" style="flex: 1; accent-color: var(--brand);" />
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 11px; flex: 0 0 40px; color: var(--text-secondary);">Height</span>
+                                    <input type="range" id="custom-h-slider" min="100" max="8000" value="1080" style="flex: 1; accent-color: var(--brand);" />
+                                </div>
+                            </div>
+                            
+                            <!-- Default sizes -->
+                            <div style="margin-top: 16px;">
+                                <div style="font-size: 11px; font-weight: 700; color: var(--brand); margin-bottom: 8px; text-transform: uppercase;">Print & Default Sizes</div>
+                                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                    <button class="custom-preset-btn" data-w="1050" data-h="600" data-type="Business Card" style="background: #fff; border: 1px solid var(--brand); border-radius: 12px; font-size: 11px; padding: 4px 8px; cursor: pointer; color: var(--brand);">Business Card</button>
+                                    <button class="custom-preset-btn" data-w="1200" data-h="1800" data-type="Thank You Print Card" style="background: #fff; border: 1px solid var(--brand); border-radius: 12px; font-size: 11px; padding: 4px 8px; cursor: pointer; color: var(--brand);">Thank You Card</button>
+                                    <button class="custom-preset-btn" data-w="1500" data-h="2100" data-type="Greeting Card" style="background: #fff; border: 1px solid var(--brand); border-radius: 12px; font-size: 11px; padding: 4px 8px; cursor: pointer; color: var(--brand);">Greeting Card</button>
+                                    <button class="custom-preset-btn" data-w="2550" data-h="3300" data-type="Event Flyer" style="background: #fff; border: 1px solid var(--brand); border-radius: 12px; font-size: 11px; padding: 4px 8px; cursor: pointer; color: var(--brand);">Event Flyer</button>
+                                    <button class="custom-preset-btn" data-w="1800" data-h="2400" data-type="Promotional Poster" style="background: #fff; border: 1px solid var(--brand); border-radius: 12px; font-size: 11px; padding: 4px 8px; cursor: pointer; color: var(--brand);">Poster</button>
+                                </div>
+                            </div>
                         </div>
 
+                    </div>
+                </div>
+
+                <!-- NEW: Growth Hacks & Overlays based on platform -->
+                <div class="panel-section" style="margin-bottom: 24px; padding: 12px; border-radius: var(--radius-sm); border: 1px dashed var(--brand); background: var(--brand-light);">
+                    <div style="font-size: 12px; font-weight: 700; color: var(--brand); margin-bottom: 8px; text-transform: uppercase;">Growth Hacks & Overlays</div>
+                    <div id="hacks-container">
+                        <select id="growth-hack-select" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid var(--border); font-size: 13px; background: #fff; cursor: pointer;">
+                            <option value="">No Overlay Hack (Default)</option>
+                        </select>
+                        <div id="hack-description" style="font-size: 11px; color: var(--text-secondary); margin-top: 8px;">Select a platform-specific hack to supercharge engagement.</div>
                     </div>
                 </div>
 
@@ -331,6 +382,79 @@
         let windowExtractedTitle = '';
         let windowExtractedDesc = '';
         let selectedTrendPrompt = '';
+        let activePlatform = 'instagram'; // Track current platform
+
+        // Hacks Configuration
+        const platformHacks = {
+            instagram: [
+                {
+                    label: "Story Poll & Link (9:16)",
+                    desc: "Adds Poll block in center, bouncing Link arrow near bottom.",
+                    prompt: "\n\nCRITICAL OVERLAY INSTRUCTION (Instagram Story Hack): Draw a semi-transparent dashed rectangle dead center with the text 'Place [POLL] Sticker Here' inside it. Draw a bouncing arrow pointing down just above the bottom 15% mark with the text 'Place [LINK] Sticker Here 🔗'."
+                },
+                {
+                    label: "Post Save Hack (1:1 / 4:5)",
+                    desc: "Points to bottom right corner 'Save' icon.",
+                    prompt: "\n\nCRITICAL OVERLAY INSTRUCTION (Instagram Post Hack): Draw a bold arrow pointing directly to the Bottom Right Corner. Include the text next to the arrow: '📌 Save this for later before it sells out!'"
+                }
+            ],
+            whatsapp: [
+                {
+                    label: "Status Reply Action (9:16)",
+                    desc: "Guides users to swipe up & reply to status.",
+                    prompt: "\n\nCRITICAL OVERLAY INSTRUCTION (WhatsApp Status Hack): Leave the bottom 10% of the image completely dark or empty. Draw a thick, glowing green arrow pointing straight down to the bottom center. Add large, legible text: '👆 Swipe up or Type 'BOOK' below to get the Amazon Link! 🛒'"
+                }
+            ],
+            youtube: [
+                {
+                    label: "Shorts Comment Direct (9:16)",
+                    desc: "Drives traffic to pinned comments without blocking UI.",
+                    prompt: "\n\nCRITICAL OVERLAY INSTRUCTION (YouTube Shorts Hack): Do NOT put any elements or text on the bottom left or bottom right (YouTube's UI covers it). Draw an eye-catching arrow pointing specifically to the Middle-Right edge of the screen. Add the text: '👉 Amazon Link is pinned in the comments!'"
+                }
+            ],
+            facebook: [
+                {
+                    label: "Auto-DM Comment Hack (Square/Portrait)",
+                    desc: "Forces interactions to trigger ManyChat bot DM.",
+                    prompt: "\n\nCRITICAL OVERLAY INSTRUCTION (Facebook Post Hack): Create a solid color banner across the entire bottom 20% of the image. Draw a distinct arrow pointing to the Bottom Left-Center section. Write in large text: '👇 Comment 'BUY' and we will instantly Messenger DM you the Amazon link! 💬'"
+                }
+            ],
+            twitter: [
+                {
+                    label: "X Bookmark Push (16:9 / 4:5)",
+                    desc: "Drives algorithm Bookmark and Alt-image clicks.",
+                    prompt: "\n\nCRITICAL OVERLAY INSTRUCTION (X/Twitter Hack): Draw a clear arrow pointing to the Bottom Right side. Add bold text: '🔖 Bookmark this deal so you don't lose the link!'. Optional: Place a small fake 'ALT' badge icon on the bottom left corner to increase dwell time clicks."
+                }
+            ]
+        };
+
+        function renderGrowthHacks(plat) {
+            const selectEl = document.getElementById('growth-hack-select');
+            const descEl = document.getElementById('hack-description');
+            
+            // Clear existing
+            selectEl.innerHTML = '<option value="">No Overlay Hack (Default)</option>';
+            descEl.textContent = 'Select a platform-specific hack to supercharge engagement.';
+
+            if (platformHacks[plat]) {
+                platformHacks[plat].forEach((hack, index) => {
+                    const opt = document.createElement('option');
+                    opt.value = hack.prompt;
+                    opt.textContent = hack.label;
+                    opt.dataset.desc = hack.desc;
+                    selectEl.appendChild(opt);
+                });
+            }
+
+            selectEl.addEventListener('change', () => {
+                const selectedOpt = selectEl.options[selectEl.selectedIndex];
+                if (selectedOpt.value === "") {
+                    descEl.textContent = 'Select a platform-specific hack to supercharge engagement.';
+                } else {
+                    descEl.textContent = selectedOpt.dataset.desc;
+                }
+            });
+        }
 
         // ── On Load ──
         document.addEventListener('DOMContentLoaded', () => {
@@ -386,6 +510,8 @@
                 .catch(err => {
                     document.getElementById('trends-loading').textContent = 'Could not load trends today.';
                 });
+
+            renderGrowthHacks('instagram');
         });
 
         // ── DOM refs ──
@@ -408,6 +534,7 @@
         const aiPromptWrap = document.getElementById('ai-prompt-wrap');
         const aiIdeaInput = document.getElementById('ai-idea-input');
         const genMagicPromptBtn = document.getElementById('gen-magic-prompt-btn');
+        const languageSelect = document.getElementById('language-select');
 
         openAiPromptBtn.addEventListener('click', () => {
             aiPromptWrap.classList.toggle('active');
@@ -454,6 +581,47 @@
         const customDimUi = document.querySelector('.custom-dim-ui');
         const customW = document.getElementById('custom-w');
         const customH = document.getElementById('custom-h');
+        
+        const customWSlider = document.getElementById('custom-w-slider');
+        const customHSlider = document.getElementById('custom-h-slider');
+
+        if (customW && customWSlider) {
+            customW.addEventListener('input', () => { customWSlider.value = customW.value; });
+            customWSlider.addEventListener('input', () => { customW.value = customWSlider.value; });
+        }
+        if (customH && customHSlider) {
+            customH.addEventListener('input', () => { customHSlider.value = customH.value; });
+            customHSlider.addEventListener('input', () => { customH.value = customHSlider.value; });
+        }
+
+        document.querySelectorAll('.custom-preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const w = btn.dataset.w;
+                const h = btn.dataset.h;
+                const type = btn.dataset.type;
+                
+                customW.value = w;
+                customH.value = h;
+                customWSlider.value = w;
+                customHSlider.value = h;
+                
+                let prodTitle = windowExtractedTitle ? windowExtractedTitle : "the product";
+                let prodDesc = windowExtractedDesc ? windowExtractedDesc : "premium item";
+                
+                genPrompt.value = `Create a stunning, high-quality ${type} design for ${prodTitle}. Product details to consider: ${prodDesc}. Make the layout professional, visually appealing, and formatted perfectly for a ${type}.`;
+                
+                // Visual feedback for button selection
+                document.querySelectorAll('.custom-preset-btn').forEach(b => {
+                    b.style.background = '#fff';
+                    b.style.color = 'var(--brand)';
+                });
+                btn.style.background = 'var(--brand)';
+                btn.style.color = '#fff';
+                
+                // Automatically set the format selection state
+                selectedFormat = `Custom (${w}x${h})`;
+            });
+        });
 
         // ── Platform selection ──
         platBtns.forEach(btn => {
@@ -461,6 +629,10 @@
                 platBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 const target = btn.dataset.target;
+                activePlatform = target;
+
+                // Update Growth Hacks list for this platform
+                renderGrowthHacks(target);
 
                 if (target === 'custom') {
                     customDimUi.classList.remove('hidden-plat');
@@ -685,6 +857,17 @@
             }, 50);
 
             try {
+                const lang = languageSelect ? languageSelect.value : "";
+                const langPrompt = lang ? `\n\nCRITICAL LANGUAGE INSTRUCTION: Strictly make text in this language: ${lang}. Mention alphabets of that language.` : "";
+
+                const hackSelectEl = document.getElementById('growth-hack-select');
+                const overlayHackPrompt = (hackSelectEl && hackSelectEl.value !== "") ? hackSelectEl.value : "";
+
+                const finalPromptStr = genPrompt.value 
+                    + langPrompt 
+                    + (selectedTrendPrompt ? "\n\nCRITICAL CONTEXT / TREND: Integrate this specific visual aesthetic or setting into the image: " + selectedTrendPrompt : "")
+                    + overlayHackPrompt;
+
                 const resp = await fetch('/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -692,7 +875,7 @@
                         image_paths: Array.from(selectedImagePaths),
                         format: formatStr,
                         aspect_ratio: finalAspect,
-                        prompt: genPrompt.value + (selectedTrendPrompt ? "\n\nCRITICAL CONTEXT / TREND: Integrate this specific visual aesthetic or setting into the image: " + selectedTrendPrompt : ""),
+                        prompt: finalPromptStr,
                         title: windowExtractedTitle,
                         description: windowExtractedDesc
                     })
@@ -743,13 +926,19 @@
                 });
 
                 const shareBtn = document.createElement('button');
-                shareBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share';
+                shareBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Caption/Share';
                 shareBtn.addEventListener('click', () => {
                     document.getElementById('share-modal-img').src = img.src;
                     document.getElementById('share-modal-title').textContent = windowExtractedTitle;
                     document.getElementById('share-modal-desc').textContent = windowExtractedDesc;
                     document.getElementById('caption-idea').value = '';
                     document.getElementById('caption-result').value = '';
+                    
+                    // Reset all platform logos in share modal
+                    document.querySelectorAll('.share-platform-icon').forEach(ico => ico.classList.remove('active'));
+                    const firstIcon = document.querySelector('.share-platform-icon');
+                    if (firstIcon) firstIcon.classList.add('active');
+                    
                     document.getElementById('share-modal').classList.add('active');
                 });
 
@@ -775,6 +964,21 @@
             const closeShareModal = document.getElementById('close-share-modal');
             const btnGenCaption = document.getElementById('btn-gen-caption');
             const btnFinalShare = document.getElementById('btn-final-share');
+            let selectedCaptionPlatform = 'WhatsApp';
+
+            document.querySelectorAll('.share-platform-icon').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.share-platform-icon').forEach(b => {
+                        b.classList.remove('active');
+                        b.style.borderColor = 'var(--border)';
+                        b.style.boxShadow = 'none';
+                    });
+                    btn.classList.add('active');
+                    btn.style.borderColor = 'var(--brand)';
+                    btn.style.boxShadow = '0 0 0 2px rgba(108, 92, 231, 0.2)';
+                    selectedCaptionPlatform = btn.dataset.platform;
+                });
+            });
 
             closeShareModal.addEventListener('click', () => shareModal.classList.remove('active'));
 
@@ -790,7 +994,8 @@
                         body: JSON.stringify({
                             title: windowExtractedTitle,
                             description: windowExtractedDesc,
-                            idea: idea
+                            idea: idea,
+                            platform: selectedCaptionPlatform
                         })
                     });
                     const data = await resp.json();
@@ -838,6 +1043,23 @@
                     <div class="product-context">
                         <h4 id="share-modal-title"></h4>
                         <p id="share-modal-desc"></p>
+                    </div>
+
+                    <!-- Platform Selector for Caption inside Share Modal -->
+                    <div style="margin-top: 16px; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--text-secondary);">Select Target Platform</div>
+                    <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+                        <button class="share-platform-icon active" data-platform="WhatsApp" title="WhatsApp" style="width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.487-1.761-1.663-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a5.8 5.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" /></svg>
+                        </button>
+                        <button class="share-platform-icon" data-platform="Instagram" title="Instagram" style="width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                        </button>
+                        <button class="share-platform-icon" data-platform="Facebook" title="Facebook" style="width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
+                        </button>
+                        <button class="share-platform-icon" data-platform="Twitter" title="X / Twitter" style="width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="#000000"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
+                        </button>
                     </div>
 
                     <div class="caption-generator">
