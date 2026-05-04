@@ -191,7 +191,7 @@ def get_trends():
         # 3. Ask Gemini for specific ideas based on trends/holidays
         current_day_name = datetime.date.today().strftime("%A")
         
-        prompt = f"""You are an elite e-commerce visual merchandiser and social media marketing strategist. 
+            prompt = f"""You are an elite e-commerce visual merchandiser and social media marketing strategist. 
 Today's day is {current_day_name}.
 
 Here is the exact list of top trending topics in India right now:
@@ -206,15 +206,16 @@ Generate a JSON array of highly creative, aesthetic social media product photogr
 CRITICAL RULES AND LOGIC:
 1. You MUST generate exactly ONE unique idea for EVERY SINGLE trend listed above. Do not skip any trends.
 2. You MUST generate exactly 4 ideas based ONLY on the current day of the week ({current_day_name}).
-3. AVOID generic names. Explicitly use the EXACT trending names (people, teams, movies, events).
-4. THE E-COMMERCE CONNECTION: Your hidden_prompt must describe a dynamic, high-end product photography environment that subtly but brilliantly incorporates the visual identity of the trend. 
-   - Example 1: If "IPL" or a cricket player is trending, the label should be "Matchday Vibe 🏏", and the hidden_prompt should describe: "A sleek, high-end product photography podium placed inside a glowing stadium at night, illuminated by dramatic team color rim lights, with subtle cricket or stadium elements blurred beautifully in the background bokeh."
-   - Example 2: If a hit "Action Movie" is trending, hidden_prompt: "Cinematic, gritty product photography stage with moody neon lighting, smoke haze, and dramatic high-contrast shadows matching the movie's explosive aesthetic."
+3. AVOID generic names. Explicitly use the EXACT trending names (people, teams, movies, events) directly in the prompts.
+4. THE E-COMMERCE CONNECTION: Your hidden_prompt must describe a dynamic product photography environment that physically places the product in the exact context of the trend. 
+   - Example 1 (Sports/Person): If "Shubman Gill" is trending, the label should be "Shubman's Vibe 🏏", and the hidden_prompt should describe: "A high-end product lifestyle shot set on a sleek table in a VIP stadium box. The scene features Shubman Gill's exact team jersey colors in the lighting and background props, with soft-focus cricket elements, making it the perfect setting to enjoy the product during the match."
+   - Example 2 (News/Politics): If "Tamil Nadu Elections" is trending, the label should be "Election Day Watch 📺", and the hidden_prompt should describe: "A cozy lifestyle product photography setup on a modern living room coffee table. In the softly blurred background, a glowing screen shows election result maps with Tamil Nadu political party colors. The lighting is warm and inviting, staging a scene of enjoying the product while watching the live election results."
+   - Example 3 (Entertainment): If a hit "Action Movie" is trending, hidden_prompt: "Cinematic, gritty product photography stage with moody neon lighting, smoke haze, and dramatic high-contrast shadows matching the movie's explosive aesthetic."
    
 These prompts will be used verbatim as background generators for an AI image mixer that will place an e-commerce product inside the scene.
 Format the output EXACTLY as a JSON array of objects with:
-"button_label": A short, catchy 2-4 word phrase explicitly naming the trend, holiday, or day, paired with 1 matching emoji (e.g., "Kohli's Stage 🏏", "Diwali Glamour ✨").
-"hidden_prompt": A highly detailed, hyper-realistic 3D product photography environment prompt. Describe the podium/surface, the specific lighting, the thematic props, and the colors associated with the trend. DO NOT MENTION ANY SPECIFIC PRODUCT—just build the perfect stage for one to be dropped into.
+"button_label": A short, catchy 2-4 word phrase explicitly naming the trend, holiday, or day, paired with 1 matching emoji (e.g., "Shubman's Stage 🏏", "Election Watch 🗳️").
+"hidden_prompt": A highly detailed, hyper-realistic lifestyle or 3D product environment prompt explicitly using the trend's specifics (names, colors, vibes). Describe the podium/surface, the lighting, the thematic props, and the exact contextual setting (e.g., watching a match, celebrating a festival, reading the news). DO NOT MENTION ANY SPECIFIC E-COMMERCE PRODUCT—just build the perfect thematic narrative stage for ANY product to be dropped into.
 
 Output ONLY the raw JSON array. No markdown, no intro."""
 
