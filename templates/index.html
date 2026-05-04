@@ -388,9 +388,14 @@
         const platformHacks = {
             instagram: [
                 {
-                    label: "Story Poll & Link (9:16)",
-                    desc: "Adds Poll block in center, bouncing Link arrow near bottom.",
-                    prompt: "\n\nCRITICAL OVERLAY INSTRUCTION (Instagram Story Hack): Draw a semi-transparent dashed rectangle dead center with the text 'Place [POLL] Sticker Here' inside it. Draw a bouncing arrow pointing down just above the bottom 15% mark with the text 'Place [LINK] Sticker Here 🔗'."
+                    label: "Story Poll Box (9:16)",
+                    desc: "Adds a minimalist Poll box placeholder matching image colors.",
+                    prompt: "\n\nCRITICAL OVERLAY INSTRUCTION (Instagram Story Hack): Draw a cleanly designed, solid minimalist box (white or matching the image palette) dead center as a realistic placeholder for a native Poll widget. Add clear title text just above the box (e.g., 'Which one? Vote below!'). Do not add any link arrows."
+                },
+                {
+                    label: "Story Link Arrow (9:16)",
+                    desc: "Adds a bouncing Link arrow near bottom.",
+                    prompt: "\n\nCRITICAL OVERLAY INSTRUCTION (Instagram Story Hack): Draw a bouncing arrow pointing down just above the bottom 15% mark with the text 'Place [LINK] Sticker Here 🔗'."
                 },
                 {
                     label: "Post Save Hack (1:1 / 4:5)",
@@ -403,6 +408,11 @@
                     label: "Status Reply Action (9:16)",
                     desc: "Guides users to swipe up & reply to status.",
                     prompt: "\n\nCRITICAL OVERLAY INSTRUCTION (WhatsApp Status Hack): Leave the bottom 10% of the image completely dark or empty. Draw a thick, glowing green arrow pointing straight down to the bottom center. Add large, legible text: '👆 Swipe up or Type 'BOOK' below to get the Amazon Link! 🛒'"
+                },
+                {
+                    label: "Status Poll Box (9:16)",
+                    desc: "Adds a minimalist Poll box placeholder matching image colors.",
+                    prompt: "\n\nCRITICAL OVERLAY INSTRUCTION (WhatsApp Status Hack): Draw a cleanly designed, solid minimalist box (white or smartly matching the image palette) dead center as a realistic placeholder for a native WhatsApp Poll widget. Add clear title text just above the box asking a question."
                 }
             ],
             youtube: [
@@ -413,6 +423,16 @@
                 }
             ],
             facebook: [
+                {
+                    label: "Story Poll Box (9:16)",
+                    desc: "Adds a minimalist Poll box placeholder for FB Stories.",
+                    prompt: "\n\nCRITICAL OVERLAY INSTRUCTION (Facebook Story Hack): Draw a cleanly designed, solid minimalist box (white or smartly matching the image palette) as a realistic placeholder for a native Facebook Poll widget. Add engaging title text above the box."
+                },
+                {
+                    label: "Story Link Arrow (9:16)",
+                    desc: "Adds an arrow pointing down for a link sticker.",
+                    prompt: "\n\nCRITICAL OVERLAY INSTRUCTION (Facebook Story Hack): Draw an arrow pointing down near the bottom of the image with text 'Link Here', leaving room for the native Facebook link sticker."
+                },
                 {
                     label: "Auto-DM Comment Hack (Square/Portrait)",
                     desc: "Forces interactions to trigger ManyChat bot DM.",
