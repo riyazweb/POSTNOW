@@ -14,8 +14,8 @@ import base64
 import io
 from curl_cffi import requests as curl_requests
 from PIL import Image
-import vertexai
-from vertexai.generative_models import GenerativeModel, Part, HarmCategory, HarmBlockThreshold
+from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 import json
 import time
@@ -30,19 +30,24 @@ app.config['UPLOAD_FOLDER'] = os.path.join('static', 'images')
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# Initialize Vertex AI 
+# Initialize Gen AI Client using Vertex AI mode
 KEY_FILE_NAME = "key.json"
 
 if os.path.exists(KEY_FILE_NAME):
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = KEY_FILE_NAME
 
 PROJECT_ID = "vivid-alchemy-481808-h1"
-LOCATION = "us-central1"
+LOCATION = "global"
 
 try:
-    vertexai.init(project=PROJECT_ID, location=LOCATION)
+    client = genai.Client(
+        vertexai=True,
+        project=PROJECT_ID,
+        location=LOCATION
+    )
 except Exception as e:
-    print(f"Warning: Failed to initialize Vertex AI client engine: {e}")
+    print(f"Warning: Failed to initialize Google Gen AI client via Vertex AI routing: {e}")
+    client = None
 
 ASPECT_RATIOS = {
     "Instagram Post (1:1)": "1:1",
@@ -226,8 +231,10 @@ Format the output EXACTLY as a JSON array of objects with:
 
 Output ONLY the raw JSON array. No markdown, no intro."""
 
-        model = GenerativeModel("gemini-3-flash-preview")
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model='gemini-3.1-pro-preview',
+            contents=prompt,
+        )
         
         text = response.text.replace('```json', '').replace('```', '').strip()
         ideas = json.loads(text)
@@ -266,13 +273,13 @@ Do NOT include any conversational text, intro, or outro. ONLY return the final a
 
         context_prompt = f"Product Title (for reference): {title}\nProduct Details (for reference): {desc}\n\nUser idea: {short_idea}\n\nGenerate the master prompt using the template, tailoring the environment and composition to fit this specific product naturally."
         
-        model = GenerativeModel(
-            "gemini-3-flash-preview",
-            system_instruction=[system_instructions]
-        )
-        response = model.generate_content(
-            context_prompt,
-            generation_config={"temperature": 0.7}
+        response = client.models.generate_content(
+            model='gemini-3.1-pro-preview',
+            contents=context_prompt,
+            config=types.GenerateContentConfig(
+                system_instruction=system_instructions,
+                temperature=0.7,
+            )
         )
         return jsonify({'prompt': response.text.strip()})
     except Exception as e:
@@ -309,8 +316,10 @@ Platform: {platform}
 Ensure it is instantly ready to copy-paste!"""
 
     try:
-        model = GenerativeModel("gemini-3-flash-preview")
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model='gemini-3.1-pro-preview',
+            contents=prompt,
+        )
         return jsonify({'caption': response.text})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -353,35 +362,33 @@ def generate():
     contents.append(full_prompt)
 
     try:
-        safety_settings = {
-            HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
-            HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
-            HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
-            HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
-        }
+        generate_content_config = types.GenerateContentConfig(
+            temperature=1.0,
+            top_p=0.95,
+            max_output_tokens=8192,
+            safety_settings=[
+                types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="OFF"),
+                types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="OFF"),
+                types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="OFF"),
+                types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="OFF"),
+            ],
+        )
 
-        # NOTE: Using gemini-3.1-pro-preview as the model for images in vertexai
-        model = GenerativeModel("gemini-3.1-pro-preview")
-        
-        response = model.generate_content(
-            contents,
-            generation_config={
-                "temperature": 1.0,
-                "top_p": 0.95,
-                "max_output_tokens": 8192
-            },
-            safety_settings=safety_settings,
+        response = client.models.generate_content(
+            model="gemini-3.1-flash-image-preview",
+            contents=contents,
+            config=generate_content_config,
         )
 
         generated_image_data = None
         response_text = ""
         
-        # Vertex AI inline part handling
+        # New Gen AI SDK part handling
         if response.candidates:
             for part in response.candidates[0].content.parts:
-                if hasattr(part, 'inline_data') and part.inline_data is not None:
+                if part.inline_data is not None:
                     generated_image_data = part.inline_data.data
-                elif hasattr(part, 'text') and part.text is not None:
+                elif part.text is not None:
                     response_text += part.text
 
         if generated_image_data:
