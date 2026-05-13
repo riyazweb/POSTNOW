@@ -14,8 +14,8 @@ import base64
 import io
 from curl_cffi import requests as curl_requests
 from PIL import Image
-from google import genai
-from google.genai import types
+import vertexai
+from vertexai.generative_models import GenerativeModel, Part, HarmCategory, HarmBlockThreshold
 from dotenv import load_dotenv
 import json
 import time
@@ -30,18 +30,19 @@ app.config['UPLOAD_FOLDER'] = os.path.join('static', 'images')
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# Initialize Genai client
-api_key = os.environ.get("GOOGLE_CLOUD_API_KEY") or os.environ.get("GEMINI_API_KEY")
+# Initialize Vertex AI 
+KEY_FILE_NAME = "key.json"
+
+if os.path.exists(KEY_FILE_NAME):
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = KEY_FILE_NAME
+
+PROJECT_ID = "vivid-alchemy-481808-h1"
+LOCATION = "us-central1"
 
 try:
-    if api_key:
-        client = genai.Client(api_key=api_key)
-    else:
-        # Try finding credentials from Vertex AI/Default ADC
-        client = genai.Client(vertexai=True)
+    vertexai.init(project=PROJECT_ID, location=LOCATION)
 except Exception as e:
-    print(f"Warning: Failed to initialize genai.Client: {e}")
-    client = None
+    print(f"Warning: Failed to initialize Vertex AI client engine: {e}")
 
 ASPECT_RATIOS = {
     "Instagram Post (1:1)": "1:1",
@@ -225,14 +226,8 @@ Format the output EXACTLY as a JSON array of objects with:
 
 Output ONLY the raw JSON array. No markdown, no intro."""
 
-        client_inst = genai.Client(
-            vertexai=True,
-            api_key=os.environ.get("GOOGLE_CLOUD_API_KEY"),
-        )
-        response = client_inst.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt,
-        )
+        model = GenerativeModel("gemini-1.5-flash-001")
+        response = model.generate_content(prompt)
         
         text = response.text.replace('```json', '').replace('```', '').strip()
         ideas = json.loads(text)
@@ -271,13 +266,13 @@ Do NOT include any conversational text, intro, or outro. ONLY return the final a
 
         context_prompt = f"Product Title (for reference): {title}\nProduct Details (for reference): {desc}\n\nUser idea: {short_idea}\n\nGenerate the master prompt using the template, tailoring the environment and composition to fit this specific product naturally."
         
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=context_prompt,
-            config=types.GenerateContentConfig(
-                system_instruction=system_instructions,
-                temperature=0.7,
-            )
+        model = GenerativeModel(
+            "gemini-1.5-flash-001",
+            system_instruction=[system_instructions]
+        )
+        response = model.generate_content(
+            context_prompt,
+            generation_config={"temperature": 0.7}
         )
         return jsonify({'prompt': response.text.strip()})
     except Exception as e:
@@ -314,14 +309,8 @@ Platform: {platform}
 Ensure it is instantly ready to copy-paste!"""
 
     try:
-        client = genai.Client(
-            vertexai=True,
-            api_key=os.environ.get("GOOGLE_CLOUD_API_KEY"),
-        )
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt,
-        )
+        model = GenerativeModel("gemini-1.5-flash-001")
+        response = model.generate_content(prompt)
         return jsonify({'caption': response.text})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -364,37 +353,36 @@ def generate():
     contents.append(full_prompt)
 
     try:
-        generate_content_config = types.GenerateContentConfig(
-            temperature=1,
-            top_p=0.95,
-            max_output_tokens=32768,
-            response_modalities=["IMAGE"],
-            safety_settings=[
-                types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="OFF"),
-                types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="OFF"),
-                types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="OFF"),
-                types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="OFF"),
-            ],
+        safety_settings = {
+            HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+            HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+            HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+            HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+        }
+
+        # NOTE: Using gemini-1.5-flash as the fallback model for images in vertexai is usually Imagen or a multimodal gemini
+        model = GenerativeModel("gemini-1.5-pro-001")
+        
+        response = model.generate_content(
+            contents,
+            generation_config={
+                "temperature": 1.0,
+                "top_p": 0.95,
+                "max_output_tokens": 8192
+            },
+            safety_settings=safety_settings,
         )
 
-        # The user's code had a generate_content_stream, but image generation is just generate_content or generate_images.
-        # But wait, gemini-3-pro-image-preview generates images, which does not stream.
-        # So we just use generate_content
-        response = client.models.generate_content(
-            model="gemini-3-pro-image-preview",
-            contents=contents,
-            config=generate_content_config,
-        )
-
-        # Extract generated image from response
         generated_image_data = None
         response_text = ""
         
-        for part in response.candidates[0].content.parts:
-            if part.inline_data is not None:
-                generated_image_data = part.inline_data.data
-            elif part.text is not None:
-                response_text += part.text
+        # Vertex AI inline part handling
+        if response.candidates:
+            for part in response.candidates[0].content.parts:
+                if hasattr(part, 'inline_data') and part.inline_data is not None:
+                    generated_image_data = part.inline_data.data
+                elif hasattr(part, 'text') and part.text is not None:
+                    response_text += part.text
 
         if generated_image_data:
             # Return as base64 without saving to disk
