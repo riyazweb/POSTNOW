@@ -226,7 +226,7 @@ Format the output EXACTLY as a JSON array of objects with:
 
 Output ONLY the raw JSON array. No markdown, no intro."""
 
-        model = GenerativeModel("gemini-1.5-flash-001")
+        model = GenerativeModel("gemini-3-flash-preview")
         response = model.generate_content(prompt)
         
         text = response.text.replace('```json', '').replace('```', '').strip()
@@ -267,7 +267,7 @@ Do NOT include any conversational text, intro, or outro. ONLY return the final a
         context_prompt = f"Product Title (for reference): {title}\nProduct Details (for reference): {desc}\n\nUser idea: {short_idea}\n\nGenerate the master prompt using the template, tailoring the environment and composition to fit this specific product naturally."
         
         model = GenerativeModel(
-            "gemini-1.5-flash-001",
+            "gemini-3-flash-preview",
             system_instruction=[system_instructions]
         )
         response = model.generate_content(
@@ -309,7 +309,7 @@ Platform: {platform}
 Ensure it is instantly ready to copy-paste!"""
 
     try:
-        model = GenerativeModel("gemini-1.5-flash-001")
+        model = GenerativeModel("gemini-3-flash-preview")
         response = model.generate_content(prompt)
         return jsonify({'caption': response.text})
     except Exception as e:
@@ -360,8 +360,8 @@ def generate():
             HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
         }
 
-        # NOTE: Using gemini-1.5-flash as the fallback model for images in vertexai is usually Imagen or a multimodal gemini
-        model = GenerativeModel("gemini-1.5-pro-001")
+        # NOTE: Using gemini-3.1-pro-preview as the model for images in vertexai
+        model = GenerativeModel("gemini-3.1-pro-preview")
         
         response = model.generate_content(
             contents,
