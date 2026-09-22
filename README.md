@@ -1,4 +1,5 @@
 # POSTNOW / PIXI
+ <img width="796" height="712" alt="image" src="https://github.com/user-attachments/assets/2eeeebc9-4c1c-4b3c-b187-054fc52cfbe0" />
 
 An intelligent, containerized Flask app leveraging Generative AI for content creation.
 
