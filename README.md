@@ -1,4 +1,5 @@
 # POSTNOW / PIXI
+<img width="796" height="712" alt="image" src="https://github.com/user-attachments/assets/6ecf7ba5-f531-4824-b75d-cc7c2a3bbbf2" />
 
 <div align="center">
 
